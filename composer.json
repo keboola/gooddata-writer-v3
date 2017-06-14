@@ -1,0 +1,35 @@
+{
+  "name": "keboola/gooddata-writer-v3",
+  "license": "MIT",
+  "type": "project",
+  "description": "GoodData Writer v3 for Keboola Docker Runner",
+  "keywords": ["keboola", "gooddata", "writer"],
+  "authors": [
+    {
+      "name": "Jakub Matejka",
+      "email": "jakub@keboola.com"
+    }
+  ],
+  "require": {
+    "php": "~7.1",
+    "keboola/csv": "~1.1",
+    "keboola/php-temp": "0.1.3",
+    "symfony/config": "^3.3",
+    "symfony/console": "^3.3",
+    "symfony/filesystem": "^3.3",
+    "symfony/process": "^3.3",
+    "symfony/serializer": "^3.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~6.2",
+    "squizlabs/php_codesniffer": "^3.0",
+    "phpstan/phpstan": "^0.7"
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Keboola\\GoodDataWriter\\": "src/Keboola/GoodDataWriter/",
+      "Keboola\\GoodDataWriter\\Tests\\": "tests/Keboola/GoodDataWriter/"
+    }
+  }
+}

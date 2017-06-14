@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+
+  app:
+    build: .
+    image: keboola/gooddata-writer
+    tty: true
+    command: bash
+    volumes:
+      - ./:/code
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c './tests.sh'
+    environment:
+      - WR_GD_
