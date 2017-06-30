@@ -15,5 +15,15 @@ services:
       context: .
       dockerfile: Dockerfile
     command: sh -c './tests.sh'
+    volumes:
+      - ./:/code
+    environment:
+      - WR_GD_
+
+  ci-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c './tests.sh'
     environment:
       - WR_GD_

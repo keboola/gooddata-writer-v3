@@ -31,24 +31,30 @@ class RunCommand extends Command
         if (!file_exists($configFile)) {
             throw new \Exception("Config file not found at path $configFile");
         }
-        $jsonDecode = new JsonDecode(true);
-        $config = $jsonDecode->decode(file_get_contents($configFile), JsonEncoder::FORMAT);
 
         try {
-            $inputPath = "$dataDirectory/in/tables";
+            $jsonDecode = new JsonDecode(true);
+            $config = $jsonDecode->decode(file_get_contents($configFile), JsonEncoder::FORMAT);
 
-            $validatedConfig = $this->validateInput($config);
-            $validatedConfig['inputPath'] = $inputPath;
-            $validatedConfig['output'] = $consoleOutput;
+            $parameters = new ConfigParameters($config);
 
-            $app = new App($validatedConfig);
-            $app->run($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
+            $app = new App($consoleOutput);
+
+            $action = $config['action'] ?? 'run';
+            switch ($action) {
+                case 'run':
+                    $app->run($parameters->getParameters(), "$dataDirectory/in/tables");
+                    break;
+                default:
+                    $consoleOutput->writeln("Action $action is not supported");
+                    break;
+            }
 
             return 0;
         } catch (\Keboola\GoodData\Exception $e) {
             $consoleOutput->writeln($e->getMessage());
             return 1;
-        } catch (Exception $e) {
+        } catch (UserException $e) {
             $consoleOutput->writeln($e->getMessage());
             return 1;
         } catch (\Exception $e) {
@@ -59,20 +65,5 @@ class RunCommand extends Command
             }
             return 2;
         }
-    }
-
-    public function validateInput($config)
-    {
-        $required = ['model'];
-        foreach ($required as $r) {
-            if (empty($config['parameters'][$r])) {
-                throw new Exception("Missing parameter '$r'");
-            }
-        }
-        return [
-            'model' => $config['model'],
-            'incrementalLoad' => date('Ymd', strtotime(isset($config['parameters']['since'])
-                ? $config['parameters']['since'] : '-1 day')),
-        ];
     }
 }

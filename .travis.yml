@@ -7,9 +7,10 @@ before_script:
   - docker -v
   - docker-compose -v
   - docker-compose build app
+  - docker-compose build ci-tests
 
 script:
-  - docker-compose run --rm tests
+  - docker-compose run --rm ci-tests
 
 after_success:
   - docker images

@@ -11,30 +11,17 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 class App
 {
     /** @var  ConsoleOutput */
-    private $output;
+    private $consoleOutput;
 
-    public function __construct($options)
+    public function __construct($consoleOutput)
     {
-        $required = ['output', 'inputPath', 'model'];
-        foreach ($required as $item) {
-            if (!isset($options[$item])) {
-                throw new \Exception("Option $item is not set");
-            }
-        }
-
-        $this->api = new Api(
-            $options['oauthKey'],
-            $options['oauthSecret'],
-            $options['developerToken'],
-            $options['refreshToken'],
-            new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)])
-        );
-
-        $this->output = $options['output'];
+        $this->consoleOutput = $consoleOutput;
     }
 
-    public function run()
+    public function run($options, $inputPath)
     {
-
+        print_r($options);
+        $files = new CsvFiles($inputPath);
+        print_r($files->getFiles());
     }
 }

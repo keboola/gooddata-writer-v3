@@ -6,7 +6,6 @@
  */
 namespace Keboola\GoodDataWriter;
 
-class Exception extends \Exception
+class UserException extends \Exception
 {
-
 }
