@@ -36,14 +36,12 @@ class RunCommand extends Command
             $jsonDecode = new JsonDecode(true);
             $config = $jsonDecode->decode(file_get_contents($configFile), JsonEncoder::FORMAT);
 
-            $parameters = new ConfigParameters($config);
-
             $app = new App($consoleOutput);
 
             $action = $config['action'] ?? 'run';
             switch ($action) {
                 case 'run':
-                    $app->run($parameters->getParameters(), "$dataDirectory/in/tables");
+                    $app->run($config, "$dataDirectory/in/tables");
                     break;
                 default:
                     $consoleOutput->writeln("Action $action is not supported");
