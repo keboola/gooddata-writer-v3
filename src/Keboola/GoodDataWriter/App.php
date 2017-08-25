@@ -50,17 +50,16 @@ class App
         // Date dimensions
         if (isset($config['parameters']['dimensions']) && count($config['parameters']['dimensions'])) {
             foreach ($config['parameters']['dimensions'] as $dimensionName => $dimension) {
-                $identifier = !empty($dimension['identifier']) ? $dimension['identifier'] : null;
-                $gdClient->getDateDimensions()->create(
-                    $pid,
-                    $dimensionName,
-                    $identifier,
-                    !empty($dimension['template']) ? $dimension['template'] : null
-                );
+                $identifier = !empty($dimension['identifier']) ? $dimension['identifier']
+                    : $gdClient->getDateDimensions()->getDefaultIdentifier($dimensionName);
+                $template = !empty($dimension['template']) ? $dimension['template'] : null;
+                if (!$gdClient->getDateDimensions()->exists($pid, $dimensionName, $template)) {
+                    $gdClient->getDateDimensions()->executeCreateMaql($pid, $dimensionName, $identifier, $template);
+                }
                 if (!empty($dimension['includeTime'])) {
                     $td = new \Keboola\GoodData\TimeDimension($gdClient);
                     if (!$td->exists($pid, $dimensionName, $identifier)) {
-                        $td->create($pid, $dimensionName, $identifier);
+                        $td->executeCreateMaql($pid, $dimensionName, $identifier);
                         $td->loadData($pid, $dimensionName, $temp->getTmpFolder());
                     }
                 }
@@ -82,8 +81,6 @@ class App
             $file = new CsvFile("$inputPath/{$table['destination']}");
             print_r($file);
         }
-
-
     }
 
     protected function initGoodDataClient($config)
