@@ -69,6 +69,12 @@ class App
             }
         }
 
+        $model = Model::getProjectLDM([
+            'dataSets' => $config['parameters']['tables'],
+            'dimensions' => $config['parameters']['dimensions']
+        ]);
+        $gdClient->getProjectModel()->updateProject($pid, $model);
+
 
         $tables = $config['parameters']['tables'];
         foreach ($config['storage']['input']['tables'] as $table) {

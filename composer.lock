@@ -224,12 +224,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/gooddata-php-client.git",
-                "reference": "7dde4733f63a7164d138301f08f47ab42c6e5f4c"
+                "reference": "0dc8e7682028324b4b3006e5351a6e4df8b35eb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/7dde4733f63a7164d138301f08f47ab42c6e5f4c",
-                "reference": "7dde4733f63a7164d138301f08f47ab42c6e5f4c",
+                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/0dc8e7682028324b4b3006e5351a6e4df8b35eb4",
+                "reference": "0dc8e7682028324b4b3006e5351a6e4df8b35eb4",
                 "shasum": ""
             },
             "require": {
@@ -267,7 +267,7 @@
             "keywords": [
                 "gooddata"
             ],
-            "time": "2017-08-28T07:06:09+00:00"
+            "time": "2017-08-28T15:57:47+00:00"
         },
         {
             "name": "keboola/php-temp",
