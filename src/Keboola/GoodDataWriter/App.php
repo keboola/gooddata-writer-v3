@@ -9,6 +9,8 @@ namespace Keboola\GoodDataWriter;
 use Keboola\Csv\CsvFile;
 use Keboola\GoodData\Client;
 use Keboola\Temp\Temp;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -44,8 +46,9 @@ class App
         }
 
         $gdClient = $this->initGoodDataClient($config);
+        $gdClient->setLogger(new Logger('gooddata-writer', [new StreamHandler('php://stdout')]));
         $temp = new Temp();
-
+        $temp->initRunFolder();
 
         // Date dimensions
         if (isset($config['parameters']['dimensions']) && count($config['parameters']['dimensions'])) {
