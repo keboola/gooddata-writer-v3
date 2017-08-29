@@ -19,11 +19,6 @@ class Model
     const USERNAME_TEMPLATE = '%s-%s@%s';
     const USERNAME_DOMAIN = 'clients.keboola.com';
 
-    public static function getDatasetIdFromDefinition($id, $def)
-    {
-        return !empty($def['identifier']) ? $def['identifier'] : Identifiers::getDatasetId($id);
-    }
-
     public static function getProjectLDM($def)
     {
         $result = [
@@ -112,40 +107,17 @@ class Model
         return $column;
     }
 
-    public static function getDateDimensionLDM($name, $def)
-    {
-        return [
-            'dateDimension' => [
-                'name' => !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
-                'title' => $name
-            ]
-        ];
-    }
-
-    public static function getTimeDimensionLDM($name, $def)
-    {
-        return ['dataset' => TimeDimension::getLDM(
-            !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
-            $name
-        )];
-    }
-
-    public static function getDataSetTitle($id, $def)
-    {
-        return !empty($def['title']) ? $def['title'] : $id;
-    }
-
     public static function getDataSetLDM($id, $def)
     {
         // add default connection point
         $dataSet = [
             'identifier' => self::getDatasetIdFromDefinition($id, $def),
-            'title' => self::getDataSetTitle($id, $def),
+            'title' => self::getTitleFromDefinition($id, $def),
             'anchor' => [
                 'attribute' => [
                     'identifier' => !empty($def['anchorIdentifier']) ? $def['anchorIdentifier']
                         : Identifiers::getImplicitConnectionPointId($id),
-                    'title' => sprintf('Records of %s', self::getDataSetTitle($id, $def))
+                    'title' => sprintf('Records of %s', self::getTitleFromDefinition($id, $def))
                 ]
             ]
         ];
@@ -229,89 +201,6 @@ class Model
             $dataSet['references'] = $references;
         }
         return ['dataset' => $dataSet];
-    }
-
-    public static function getColumnTitle($name, $column)
-    {
-        return !empty($column['title']) ? $column['title'] : $name;
-    }
-
-    public static function getColumnDataType($column)
-    {
-        if (!empty($column['dataType'])) {
-            $res = $column['dataType'];
-            if (!empty($column['dataTypeSize'])) {
-                $res .= "({$column['dataTypeSize']})";
-            }
-            return $res;
-        }
-        return false;
-    }
-
-    public static function getFactLDM($datasetId, $name, $column)
-    {
-        $fact = [
-            'identifier' => !empty($column['identifier']) ? $column['identifier']
-                : Identifiers::getFactId($datasetId, $name),
-            'title' => self::getColumnTitle($name, $column),
-            'deprecated' => false
-        ];
-        if ($dataType = self::getColumnDataType($column)) {
-            $fact['dataType'] = $dataType;
-        }
-        return ['fact' => $fact];
-    }
-
-    public static function getDefaultLabelId($datasetId, $name, $column)
-    {
-        return !empty($column['identifierLabel'])
-            ? $column['identifierLabel'] : Identifiers::getLabelId($datasetId, $name);
-    }
-
-    public static function getAttributeLDM($datasetId, $datasetDef, $name, $column)
-    {
-        $attribute = [
-            'identifier' => !empty($column['identifier'])
-                ? $column['identifier'] : Identifiers::getAttributeId($datasetId, $name),
-            'title' => self::getColumnTitle($name, $column),
-            'defaultLabel' => self::getDefaultLabelId($datasetId, $name, $column),
-            'folder' => self::getDataSetTitle($datasetId, $datasetDef),
-            'deprecated' => false
-        ];
-
-        if (!empty($column['sortLabel'])) {
-            if (empty($column['identifierSortLabel'])) {
-                if (!isset($datasetDef['columns'][$column['sortLabel']])) {
-                    throw new UserException("Sort label for column $name on dataset $datasetId is invalid");
-                }
-                $sortLabelCol = $datasetDef['columns'][$column['sortLabel']];
-                $column['identifierSortLabel'] = isset($sortLabelCol['identifier']) ? $sortLabelCol['identifier']
-                    : Identifiers::getRefLabelId($datasetId, $name, $column['sortLabel']);
-            }
-
-            $attribute['sortOrder'] = [
-                'attributeSortOrder' => [
-                    'label' => $column['identifierSortLabel'],
-                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC'
-                ]
-            ];
-        }
-        return ['attribute' => $attribute];
-    }
-
-    public static function getLabelLDM($datasetId, $name, $column)
-    {
-        $label = [
-            'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
-            'title' => self::getColumnTitle($name, $column),
-            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text')
-        ];
-        if ($dataType = self::getColumnDataType($column)) {
-            $label['dataType'] = $dataType;
-        } elseif ($column['type'] == 'HYPERLINK') {
-            $label['dataType'] = 'VARCHAR(255)';
-        }
-        return ['label' => $label];
     }
 
     private static function getGrain($id, $def)
@@ -419,5 +308,113 @@ class Model
             }
         }
         return $def;
+    }
+
+
+
+    public static function getDatasetIdFromDefinition($id, $def)
+    {
+        return !empty($def['identifier']) ? $def['identifier'] : Identifiers::getDatasetId($id);
+    }
+
+    public static function getTitleFromDefinition($id, $def)
+    {
+        return !empty($def['title']) ? $def['title'] : $id;
+    }
+
+    public static function getDefaultLabelId($datasetId, $name, $column)
+    {
+        return !empty($column['identifierLabel'])
+            ? $column['identifierLabel'] : Identifiers::getLabelId($datasetId, $name);
+    }
+
+    public static function getColumnDataType($column)
+    {
+        if (!empty($column['dataType'])) {
+            $res = $column['dataType'];
+            if (!empty($column['dataTypeSize'])) {
+                $res .= "({$column['dataTypeSize']})";
+            }
+            return $res;
+        }
+        return false;
+    }
+
+    public static function getDateDimensionLDM($name, $def)
+    {
+        return [
+            'dateDimension' => [
+                'name' => !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
+                'title' => $name
+            ]
+        ];
+    }
+
+    public static function getTimeDimensionLDM($name, $def)
+    {
+        return ['dataset' => TimeDimension::getLDM(
+            !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
+            $name
+        )];
+    }
+
+    public static function getFactLDM($datasetId, $name, $column)
+    {
+        $fact = [
+            'identifier' => !empty($column['identifier']) ? $column['identifier']
+                : Identifiers::getFactId($datasetId, $name),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'deprecated' => false
+        ];
+        if ($dataType = self::getColumnDataType($column)) {
+            $fact['dataType'] = $dataType;
+        }
+        return ['fact' => $fact];
+    }
+
+    public static function getAttributeLDM($datasetId, $datasetDef, $name, $column)
+    {
+        $attribute = [
+            'identifier' => !empty($column['identifier'])
+                ? $column['identifier'] : Identifiers::getAttributeId($datasetId, $name),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'defaultLabel' => self::getDefaultLabelId($datasetId, $name, $column),
+            'folder' => self::getTitleFromDefinition($datasetId, $datasetDef),
+            'deprecated' => false
+        ];
+
+        if (!empty($column['sortLabel'])) {
+            if (empty($column['identifierSortLabel'])) {
+                if (!isset($datasetDef['columns'][$column['sortLabel']])) {
+                    throw new UserException("Sort label for column $name on dataset $datasetId is invalid");
+                }
+                $sortLabelCol = $datasetDef['columns'][$column['sortLabel']];
+                $column['identifierSortLabel'] = isset($sortLabelCol['identifier']) ? $sortLabelCol['identifier']
+                    : Identifiers::getRefLabelId($datasetId, $name, $column['sortLabel']);
+            }
+
+            $attribute['sortOrder'] = [
+                'attributeSortOrder' => [
+                    'label' => $column['identifierSortLabel'],
+                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC'
+                ]
+            ];
+        }
+        return ['attribute' => $attribute];
+    }
+
+    public static function getLabelLDM($datasetId, $name, $column)
+    {
+        $label = [
+            'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text')
+        ];
+        if ($dataType = self::getColumnDataType($column)) {
+            $label['dataType'] = $dataType;
+        } elseif ($column['type'] == 'HYPERLINK') {
+            $label['dataType'] = 'VARCHAR(255)';
+        }
+        return ['label' => $label];
     }
 }

@@ -30,7 +30,7 @@
   "autoload": {
     "psr-4": {
       "Keboola\\GoodDataWriter\\": "src/Keboola/GoodDataWriter/",
-      "Keboola\\GoodDataWriter\\Tests\\": "tests/Keboola/GoodDataWriter/"
+      "Keboola\\GoodDataWriter\\Test\\": "tests/Keboola/GoodDataWriter/"
     }
   }
 }
