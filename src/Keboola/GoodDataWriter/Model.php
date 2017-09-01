@@ -14,11 +14,6 @@ use Keboola\GoodData\TimeDimension;
 
 class Model
 {
-    const PROJECT_NAME_TEMPLATE = '%s - %s - %s';
-    const PROJECT_NAME_PREFIX = 'KBC';
-    const USERNAME_TEMPLATE = '%s-%s@%s';
-    const USERNAME_DOMAIN = 'clients.keboola.com';
-
     public static function getProjectLDM($def)
     {
         $result = [
@@ -56,55 +51,6 @@ class Model
             }
         }
         return $result;
-    }
-
-    public static function addDateDimensionDefinition($columnName, $column, $dataSetId, $def)
-    {
-        if (empty($column['dateDimension'])) {
-            throw new UserException("Date column '{$columnName}' of dataset $dataSetId does not have "
-                . "a valid date dimension assigned");
-        }
-        if (!isset($def['dimensions'][$column['dateDimension']])) {
-            throw new UserException("Date column '{$columnName}' of dataset $dataSetId does not have "
-                . "a valid date dimension assigned");
-        }
-        $column['includeTime'] = $def['dimensions'][$column['dateDimension']]['includeTime'];
-        $column['template'] = $def['dimensions'][$column['dateDimension']]['template'];
-        if (!empty($def['dimensions'][$column['dateDimension']]['identifier'])) {
-            $column['identifier'] = $def['dimensions'][$column['dateDimension']]['identifier'];
-        }
-        return $column;
-    }
-
-    public static function addReferenceDefinition($columnName, $column, $dataSetId, $def)
-    {
-        if (!$column['schemaReference'] || !isset($def['dataSets'][$column['schemaReference']])) {
-            throw new UserException("Schema reference of column '{$columnName}' of dataset $dataSetId is invalid");
-        }
-        $refTableId = $column['schemaReference'];
-        $refTableDefinition = $def['dataSets'][$column['schemaReference']];
-        $column['schemaReference'] = empty($refTableDefinition['title'])
-            ? $refTableId : $refTableDefinition['title'];
-        $column['schemaReferenceIdentifier'] = self::getDatasetIdFromDefinition($refTableId, $refTableDefinition);
-        foreach ($refTableDefinition['columns'] as $key => $c) {
-            if (isset($c['type']) && $c['type'] == 'CONNECTION_POINT') {
-                $column['reference'] = $key;
-                if (!empty($c['identifierLabel'])) {
-                    $column['referenceIdentifier'] = $c['identifierLabel'];
-                } elseif (!empty($c['identifier'])) {
-                    $column['referenceIdentifier'] = $c['identifier'];
-                }
-                $column['schemaReferenceConnection'] = !empty($c['identifier'])
-                    ? $c['identifier'] : Identifiers::getAttributeId($refTableId, $key);
-                $column['schemaReferenceConnectionLabel'] = !empty($c['identifierLabel'])
-                    ? $c['identifierLabel'] : Identifiers::getLabelId($refTableId, $key);
-                break;
-            }
-        }
-        if (!isset($column['schemaReferenceConnection'])) {
-            throw new UserException("Dataset '{$refTableId}' referenced from $dataSetId is missing a connection point");
-        }
-        return $column;
     }
 
     public static function getDataSetLDM($id, $def)
@@ -202,6 +148,158 @@ class Model
         }
         return ['dataset' => $dataSet];
     }
+
+    public static function getDatasetIdFromDefinition($id, $def)
+    {
+        return !empty($def['identifier']) ? $def['identifier'] : Identifiers::getDatasetId($id);
+    }
+
+    public static function getTitleFromDefinition($id, $def)
+    {
+        return !empty($def['title']) ? $def['title'] : $id;
+    }
+
+    public static function getDefaultLabelId($datasetId, $name, $column)
+    {
+        return !empty($column['identifierLabel'])
+            ? $column['identifierLabel'] : Identifiers::getLabelId($datasetId, $name);
+    }
+
+    public static function getColumnDataType($column)
+    {
+        if (!empty($column['dataType'])) {
+            $res = $column['dataType'];
+            if (!empty($column['dataTypeSize'])) {
+                $res .= "({$column['dataTypeSize']})";
+            }
+            return $res;
+        }
+        return false;
+    }
+
+    public static function getDateDimensionLDM($name, $def)
+    {
+        return [
+            'dateDimension' => [
+                'name' => !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
+                'title' => $name
+            ]
+        ];
+    }
+
+    public static function getTimeDimensionLDM($name, $def)
+    {
+        return ['dataset' => TimeDimension::getLDM(
+            !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
+            $name
+        )];
+    }
+
+    public static function getFactLDM($datasetId, $name, $column)
+    {
+        $fact = [
+            'identifier' => !empty($column['identifier']) ? $column['identifier']
+                : Identifiers::getFactId($datasetId, $name),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'deprecated' => false
+        ];
+        if ($dataType = self::getColumnDataType($column)) {
+            $fact['dataType'] = $dataType;
+        }
+        return ['fact' => $fact];
+    }
+
+    public static function getAttributeLDM($datasetId, $datasetDef, $name, $column)
+    {
+        $attribute = [
+            'identifier' => !empty($column['identifier'])
+                ? $column['identifier'] : Identifiers::getAttributeId($datasetId, $name),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'defaultLabel' => self::getDefaultLabelId($datasetId, $name, $column),
+            'folder' => self::getTitleFromDefinition($datasetId, $datasetDef),
+            'deprecated' => false
+        ];
+
+        if (!empty($column['sortLabel'])) {
+            if (empty($column['identifierSortLabel'])) {
+                if (!isset($datasetDef['columns'][$column['sortLabel']])) {
+                    throw new UserException("Sort label for column $name on dataset $datasetId is invalid");
+                }
+                $sortLabelCol = $datasetDef['columns'][$column['sortLabel']];
+                $column['identifierSortLabel'] = isset($sortLabelCol['identifier']) ? $sortLabelCol['identifier']
+                    : Identifiers::getRefLabelId($datasetId, $name, $column['sortLabel']);
+            }
+
+            $attribute['sortOrder'] = [
+                'attributeSortOrder' => [
+                    'label' => $column['identifierSortLabel'],
+                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC'
+                ]
+            ];
+        }
+        return ['attribute' => $attribute];
+    }
+
+    public static function getLabelLDM($datasetId, $name, $column)
+    {
+        $label = [
+            'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
+            'title' => self::getTitleFromDefinition($name, $column),
+            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text')
+        ];
+        if ($dataType = self::getColumnDataType($column)) {
+            $label['dataType'] = $dataType;
+        } elseif ($column['type'] == 'HYPERLINK') {
+            $label['dataType'] = 'VARCHAR(255)';
+        }
+        return ['label' => $label];
+    }
+
+    public static function addDateDimensionDefinition($columnName, $column, $dataSetId, $def)
+    {
+        if (empty($column['dateDimension']) || !isset($def['dimensions'][$column['dateDimension']])) {
+            throw new UserException("Date column '{$columnName}' of dataset $dataSetId does not have "
+                . "a valid date dimension assigned");
+        }
+        $column['includeTime'] = $def['dimensions'][$column['dateDimension']]['includeTime'];
+        $column['template'] = $def['dimensions'][$column['dateDimension']]['template'];
+        if (!empty($def['dimensions'][$column['dateDimension']]['identifier'])) {
+            $column['identifier'] = $def['dimensions'][$column['dateDimension']]['identifier'];
+        }
+        return $column;
+    }
+
+    public static function addReferenceDefinition($columnName, $column, $dataSetId, $def)
+    {
+        if (!$column['schemaReference'] || !isset($def['dataSets'][$column['schemaReference']])) {
+            throw new UserException("Schema reference of column '{$columnName}' of dataset $dataSetId is invalid");
+        }
+        $refTableId = $column['schemaReference'];
+        $refTableDefinition = $def['dataSets'][$column['schemaReference']];
+        $column['schemaReference'] = empty($refTableDefinition['title'])
+            ? $refTableId : $refTableDefinition['title'];
+        $column['schemaReferenceIdentifier'] = self::getDatasetIdFromDefinition($refTableId, $refTableDefinition);
+        foreach ($refTableDefinition['columns'] as $key => $c) {
+            if (isset($c['type']) && $c['type'] == 'CONNECTION_POINT') {
+                $column['reference'] = $key;
+                if (!empty($c['identifierLabel'])) {
+                    $column['referenceIdentifier'] = $c['identifierLabel'];
+                } elseif (!empty($c['identifier'])) {
+                    $column['referenceIdentifier'] = $c['identifier'];
+                }
+                $column['schemaReferenceConnection'] = !empty($c['identifier'])
+                    ? $c['identifier'] : Identifiers::getAttributeId($refTableId, $key);
+                $column['schemaReferenceConnectionLabel'] = !empty($c['identifierLabel'])
+                    ? $c['identifierLabel'] : Identifiers::getLabelId($refTableId, $key);
+                break;
+            }
+        }
+        if (!isset($column['schemaReferenceConnection'])) {
+            throw new UserException("Dataset '{$refTableId}' referenced from $dataSetId is missing a connection point");
+        }
+        return $column;
+    }
+
 
     private static function getGrain($id, $def)
     {
@@ -308,113 +406,5 @@ class Model
             }
         }
         return $def;
-    }
-
-
-
-    public static function getDatasetIdFromDefinition($id, $def)
-    {
-        return !empty($def['identifier']) ? $def['identifier'] : Identifiers::getDatasetId($id);
-    }
-
-    public static function getTitleFromDefinition($id, $def)
-    {
-        return !empty($def['title']) ? $def['title'] : $id;
-    }
-
-    public static function getDefaultLabelId($datasetId, $name, $column)
-    {
-        return !empty($column['identifierLabel'])
-            ? $column['identifierLabel'] : Identifiers::getLabelId($datasetId, $name);
-    }
-
-    public static function getColumnDataType($column)
-    {
-        if (!empty($column['dataType'])) {
-            $res = $column['dataType'];
-            if (!empty($column['dataTypeSize'])) {
-                $res .= "({$column['dataTypeSize']})";
-            }
-            return $res;
-        }
-        return false;
-    }
-
-    public static function getDateDimensionLDM($name, $def)
-    {
-        return [
-            'dateDimension' => [
-                'name' => !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
-                'title' => $name
-            ]
-        ];
-    }
-
-    public static function getTimeDimensionLDM($name, $def)
-    {
-        return ['dataset' => TimeDimension::getLDM(
-            !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
-            $name
-        )];
-    }
-
-    public static function getFactLDM($datasetId, $name, $column)
-    {
-        $fact = [
-            'identifier' => !empty($column['identifier']) ? $column['identifier']
-                : Identifiers::getFactId($datasetId, $name),
-            'title' => self::getTitleFromDefinition($name, $column),
-            'deprecated' => false
-        ];
-        if ($dataType = self::getColumnDataType($column)) {
-            $fact['dataType'] = $dataType;
-        }
-        return ['fact' => $fact];
-    }
-
-    public static function getAttributeLDM($datasetId, $datasetDef, $name, $column)
-    {
-        $attribute = [
-            'identifier' => !empty($column['identifier'])
-                ? $column['identifier'] : Identifiers::getAttributeId($datasetId, $name),
-            'title' => self::getTitleFromDefinition($name, $column),
-            'defaultLabel' => self::getDefaultLabelId($datasetId, $name, $column),
-            'folder' => self::getTitleFromDefinition($datasetId, $datasetDef),
-            'deprecated' => false
-        ];
-
-        if (!empty($column['sortLabel'])) {
-            if (empty($column['identifierSortLabel'])) {
-                if (!isset($datasetDef['columns'][$column['sortLabel']])) {
-                    throw new UserException("Sort label for column $name on dataset $datasetId is invalid");
-                }
-                $sortLabelCol = $datasetDef['columns'][$column['sortLabel']];
-                $column['identifierSortLabel'] = isset($sortLabelCol['identifier']) ? $sortLabelCol['identifier']
-                    : Identifiers::getRefLabelId($datasetId, $name, $column['sortLabel']);
-            }
-
-            $attribute['sortOrder'] = [
-                'attributeSortOrder' => [
-                    'label' => $column['identifierSortLabel'],
-                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC'
-                ]
-            ];
-        }
-        return ['attribute' => $attribute];
-    }
-
-    public static function getLabelLDM($datasetId, $name, $column)
-    {
-        $label = [
-            'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
-            'title' => self::getTitleFromDefinition($name, $column),
-            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text')
-        ];
-        if ($dataType = self::getColumnDataType($column)) {
-            $label['dataType'] = $dataType;
-        } elseif ($column['type'] == 'HYPERLINK') {
-            $label['dataType'] = 'VARCHAR(255)';
-        }
-        return ['label' => $label];
     }
 }

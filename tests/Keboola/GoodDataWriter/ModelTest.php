@@ -1,21 +1,23 @@
 <?php
-declare(strict_types=1);
-
 namespace Keboola\GoodDataWriter\Test;
 
+use Keboola\GoodDataWriter\UserException;
 use Keboola\GoodDataWriter\Model;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Keboola\GoodDataWriter\Model
  */
-class EmailTest extends TestCase
+class ModelTest extends TestCase
 {
-    protected $id;
     protected $def;
+    protected $id;
+    protected $tableDef;
     protected $factColDef;
     protected $attrColDef;
     protected $labelColDef;
+    protected $dateColDef;
+    protected $refColDef;
 
     protected function setUp()
     {
@@ -40,27 +42,48 @@ class EmailTest extends TestCase
             'reference' => 'attr',
             'type' => 'HYPERLINK'
         ];
-        $this->def = [
+        $this->dateColDef = [
+            'dateDimension' => 'Date 1',
+            'type' => 'DATE'
+        ];
+        $this->refColDef = [
+            'schemaReference' => 'refTable',
+            'type' => 'REFERENCE'
+        ];
+        $this->tableDef = [
             'identifier' => uniqid(),
             'title' => uniqid(),
             'columns' => [
                 'attr' => $this->attrColDef,
                 'fact' => $this->factColDef,
-                'label' => $this->labelColDef
+                'label' => $this->labelColDef,
+                'date' => $this->dateColDef,
+                'ref' => $this->refColDef
+            ]
+        ];
+        $this->def = [
+            'dataSets' => [
+                $this->id => $this->tableDef
+            ],
+            'dimensions' => [
+                'Date 1' => [
+                    'template' => 'keboola',
+                    'includeTime' => true
+                ]
             ]
         ];
     }
 
     public function testGetDatasetIdFromDefinition()
     {
-        $this->assertEquals($this->def['identifier'], Model::getDatasetIdFromDefinition($this->id, $this->def));
+        $this->assertEquals($this->tableDef['identifier'], Model::getDatasetIdFromDefinition($this->id, $this->tableDef));
         $this->assertEquals("dataset.{$this->id}", Model::getDatasetIdFromDefinition($this->id, []));
         $this->assertEquals("dataset.{$this->id}s", Model::getDatasetIdFromDefinition("$this->id.š", []));
     }
 
     public function testGetTitleFromDefinition()
     {
-        $this->assertEquals($this->def['title'], Model::getTitleFromDefinition($this->id, $this->def));
+        $this->assertEquals($this->tableDef['title'], Model::getTitleFromDefinition($this->id, $this->tableDef));
         $this->assertEquals($this->id, Model::getTitleFromDefinition($this->id, []));
     }
 
@@ -81,10 +104,10 @@ class EmailTest extends TestCase
         $name = uniqid();
         $this->assertEquals([
             'dateDimension' => [
-                'name' => $this->def['identifier'],
+                'name' => $this->tableDef['identifier'],
                 'title' => $name
             ]
-        ], Model::getDateDimensionLDM($name, $this->def));
+        ], Model::getDateDimensionLDM($name, $this->tableDef));
     }
 
     public function testGetTimeDimensionLDM()
@@ -113,7 +136,7 @@ class EmailTest extends TestCase
 
     public function testGetAttributeLDM()
     {
-        $model = Model::getAttributeLDM($this->id, $this->def, 'attr', $this->attrColDef);
+        $model = Model::getAttributeLDM($this->id, $this->tableDef, 'attr', $this->attrColDef);
         $this->assertArrayHasKey('attribute', $model);
         $this->assertArrayHasKey('identifier', $model['attribute']);
         $this->assertArrayHasKey('title', $model['attribute']);
@@ -136,5 +159,89 @@ class EmailTest extends TestCase
         $this->assertArrayHasKey('dataType', $model['label']);
         $this->assertEquals('GDC.link', $model['label']['type']);
         $this->assertEquals('VARCHAR(255)', $model['label']['dataType']);
+    }
+
+    public function testAddDateDimensionDefinition()
+    {
+        $model = Model::addDateDimensionDefinition('date', $this->dateColDef, $this->id, $this->def);
+        $this->assertArrayHasKey('dateDimension', $model);
+        $this->assertArrayHasKey('type', $model);
+        $this->assertArrayHasKey('includeTime', $model);
+        $this->assertArrayHasKey('template', $model);
+        $this->assertEquals('Date 1', $model['dateDimension']);
+        $this->assertEquals('DATE', $model['type']);
+        $this->assertEquals(1, $model['includeTime']);
+        $this->assertEquals('keboola', $model['template']);
+    }
+
+    public function testAddReferenceDefinitionMissingTable()
+    {
+        $this->expectException(UserException::class);
+        Model::addReferenceDefinition('ref', $this->refColDef, $this->id, $this->tableDef);
+    }
+
+    public function testAddReferenceDefinitionMissingConnection()
+    {
+        $this->expectException(UserException::class);
+        $tableDef = $this->tableDef;
+        $tableDef['dataSets']['refTable'] = ['columns' => []];
+        Model::addReferenceDefinition('ref', $this->refColDef, $this->id, $tableDef);
+    }
+
+    public function testAddReferenceDefinition()
+    {
+        $tableDef = $this->tableDef;
+        $tableDef['dataSets']['refTable'] = ['columns' => ['id' => ['type' => 'CONNECTION_POINT']]];
+        $model = Model::addReferenceDefinition('ref', $this->refColDef, $this->id, $tableDef);
+        $this->assertArrayHasKey('schemaReference', $model);
+        $this->assertArrayHasKey('type', $model);
+        $this->assertArrayHasKey('reference', $model);
+        $this->assertArrayHasKey('schemaReferenceIdentifier', $model);
+        $this->assertArrayHasKey('schemaReferenceConnection', $model);
+        $this->assertArrayHasKey('schemaReferenceConnectionLabel', $model);
+        $this->assertEquals('refTable', $model['schemaReference']);
+        $this->assertEquals('REFERENCE', $model['type']);
+        $this->assertEquals('id', $model['reference']);
+        $this->assertEquals('dataset.reftable', $model['schemaReferenceIdentifier']);
+        $this->assertEquals('attr.reftable.id', $model['schemaReferenceConnection']);
+        $this->assertEquals('label.reftable.id', $model['schemaReferenceConnectionLabel']);
+    }
+
+    public function testGetDatasetLDM()
+    {
+        $model = Model::getDataSetLDM($this->id, $this->tableDef);
+        $this->assertArrayHasKey('dataset', $model);
+        $this->assertArrayHasKey('identifier', $model['dataset']);
+        $this->assertArrayHasKey('title', $model['dataset']);
+        $this->assertArrayHasKey('anchor', $model['dataset']);
+        $this->assertArrayHasKey('attribute', $model['dataset']['anchor']);
+        $this->assertArrayHasKey('identifier', $model['dataset']['anchor']['attribute']);
+        $this->assertArrayHasKey('facts', $model['dataset']);
+        $this->assertCount(1, $model['dataset']['facts']);
+        $this->assertArrayHasKey('fact', $model['dataset']['facts'][0]);
+        $this->assertArrayHasKey('identifier', $model['dataset']['facts'][0]['fact']);
+        $this->assertArrayHasKey('dataType', $model['dataset']['facts'][0]['fact']);
+        $this->assertArrayHasKey('attributes', $model['dataset']);
+        $this->assertCount(1, $model['dataset']['attributes']);
+        $this->assertArrayHasKey('attribute', $model['dataset']['attributes'][0]);
+        $this->assertArrayHasKey('identifier', $model['dataset']['attributes'][0]['attribute']);
+        $this->assertArrayHasKey('sortOrder', $model['dataset']['attributes'][0]['attribute']);
+        $this->assertArrayHasKey('labels', $model['dataset']['attributes'][0]['attribute']);
+        $this->assertCount(2, $model['dataset']['attributes'][0]['attribute']['labels']);
+        $this->assertArrayHasKey('references', $model['dataset']);
+        $this->assertEquals(['date1', 'dataset.reftable'], $model['dataset']['references']);
+    }
+
+    public function testGetProjectLDM()
+    {
+        $def = $this->def;
+        $def['dataSets']['refTable'] = ['columns' => ['id' => ['type' => 'CONNECTION_POINT']]];
+        $model = Model::getProjectLDM($def);
+        $this->assertArrayHasKey('projectModel', $model);
+        $this->assertArrayHasKey('datasets', $model['projectModel']);
+        $this->assertCount(3, $model['projectModel']['datasets']);
+        $this->assertArrayHasKey('dataset', $model['projectModel']['datasets'][2]);
+        $this->assertArrayHasKey('dateDimensions', $model['projectModel']);
+        $this->assertCount(1, $model['projectModel']['dateDimensions']);
     }
 }
