@@ -8,6 +8,7 @@
 
 namespace Keboola\GoodDataWriter;
 
+use Keboola\GoodData\Datasets;
 use Keboola\GoodData\DateDimensions;
 use Keboola\GoodData\Identifiers;
 use Keboola\GoodData\TimeDimension;
@@ -271,7 +272,7 @@ class Model
 
     public static function addReferenceDefinition($columnName, $column, $dataSetId, $def)
     {
-        if (!$column['schemaReference'] || !isset($def['dataSets'][$column['schemaReference']])) {
+        if (empty($column['schemaReference']) || !isset($def['dataSets'][$column['schemaReference']])) {
             throw new UserException("Schema reference of column '{$columnName}' of dataset $dataSetId is invalid");
         }
         $refTableId = $column['schemaReference'];
@@ -298,6 +299,92 @@ class Model
             throw new UserException("Dataset '{$refTableId}' referenced from $dataSetId is missing a connection point");
         }
         return $column;
+    }
+
+    public static function removeIgnoredColumns($columns)
+    {
+        $result = [];
+        foreach ($columns as $columnName => $column) {
+            if (isset($column['type']) && $column['type'] != 'IGNORE') {
+                $result[$columnName] = $column;
+            }
+        }
+        return $result;
+    }
+
+    public static function addDefaultIdentifiers($tableId, $def)
+    {
+        if (empty($def['identifier'])) {
+            $def['identifier'] = Identifiers::getDatasetId($tableId);
+        }
+        foreach ($def['columns'] as $columnName => &$column) {
+            if (!isset($column['type'])) {
+                continue;
+            }
+            switch ($column['type']) {
+                case 'CONNECTION_POINT':
+                case 'ATTRIBUTE':
+                    if (empty($column['identifier'])) {
+                        $column['identifier'] = Identifiers::getAttributeId($tableId, $columnName);
+                    }
+                    if (empty($column['identifierLabel'])) {
+                        $column['identifierLabel'] = Identifiers::getLabelId($tableId, $columnName);
+                    }
+                    break;
+                case 'FACT':
+                    if (empty($column['identifier'])) {
+                        $column['identifier'] = Identifiers::getFactId($tableId, $columnName);
+                    }
+                    break;
+                case 'LABEL':
+                case 'HYPERLINK':
+                    if (empty($column['identifier'])) {
+                        $column['identifier'] = Identifiers::getRefLabelId($tableId, $column['reference'], $columnName);
+                    }
+                    break;
+                case 'REFERENCE':
+                    if (empty($column['schemaReferenceConnectionLabel'])) {
+                        $column['schemaReferenceConnectionLabel'] = !empty($column['identifier'])
+                            ? $column['identifier'] : sprintf(
+                                'label.%s.%s',
+                                Identifiers::getIdentifier($column['schemaReference']),
+                                Identifiers::getIdentifier($column['reference'])
+                            );
+                    }
+                    break;
+                case 'DATE':
+                    if (empty($column['identifier'])) {
+                        $column['identifier'] = Identifiers::getIdentifier($column['dateDimension']);
+                        if (!empty($column['template']) && strtolower($column['template']) != 'gooddata') {
+                            $column['identifier'] .= '.' . strtolower($column['template']);
+                        }
+                    }
+
+                    if (!empty($column['includeTime']) && empty($column['identifierTimeFact'])) {
+                        $column['identifierTimeFact'] = TimeDimension::getTimeFactIdentifier($tableId, $columnName);
+                    }
+                    break;
+                case 'IGNORE':
+                    continue;
+            }
+        }
+        return $def;
+    }
+
+    public static function enhanceDefinition($tableId, $def, $projectDef)
+    {
+        $result = $def;
+        $result['columns'] = self::removeIgnoredColumns($def['columns']);
+        foreach ($def['columns'] as $columnName => $column) {
+            if ($column['type'] == 'DATE') {
+                $result['columns'][$columnName]
+                    = self::addDateDimensionDefinition($columnName, $column, $tableId, $projectDef);
+            } elseif ($column['type'] == 'REFERENCE') {
+                $result['columns'][$columnName]
+                    = self::addReferenceDefinition($columnName, $column, $tableId, $projectDef);
+            }
+        }
+        return self::addDefaultIdentifiers($tableId, $result);
     }
 
 
@@ -346,65 +433,5 @@ class Model
             }
         }
         return $result;
-    }
-
-    public static function addDefaultIdentifiers($def)
-    {
-        if (empty($def['identifier'])) {
-            $def['identifier'] = Identifiers::getDatasetId($def['tableId']);
-        }
-        foreach ($def['columns'] as $columnName => &$column) {
-            if (!isset($column['type'])) {
-                continue;
-            }
-            switch ($column['type']) {
-                case 'CONNECTION_POINT':
-                case 'ATTRIBUTE':
-                    if (empty($column['identifier'])) {
-                        $column['identifier'] = Identifiers::getAttributeId($def['tableId'], $columnName);
-                    }
-                    if (empty($column['identifierLabel'])) {
-                        $column['identifierLabel'] = Identifiers::getLabelId($def['tableId'], $columnName);
-                    }
-                    break;
-                case 'FACT':
-                    if (empty($column['identifier'])) {
-                        $column['identifier'] = Identifiers::getFactId($def['tableId'], $columnName);
-                    }
-                    break;
-                case 'LABEL':
-                case 'HYPERLINK':
-                    if (empty($column['identifier'])) {
-                        $column['identifier']
-                            = Identifiers::getRefLabelId($def['tableId'], $column['reference'], $columnName);
-                    }
-                    break;
-                case 'REFERENCE':
-                    if (empty($column['schemaReferenceConnectionLabel'])) {
-                        $column['schemaReferenceConnectionLabel'] = !empty($column['identifier'])
-                            ? $column['identifier'] : sprintf(
-                                'label.%s.%s',
-                                Identifiers::getIdentifier($column['schemaReference']),
-                                Identifiers::getIdentifier($column['reference'])
-                            );
-                    }
-                    break;
-                case 'DATE':
-                    if (empty($column['identifier'])) {
-                        $column['identifier'] = Identifiers::getIdentifier($column['dateDimension'])
-                            . (!empty($column['template'] && strtolower($column['template']) != 'gooddata')
-                                ? '.' . strtolower($column['template']) : null);
-                    }
-
-                    if (!empty($column['includeTime']) && empty($column['identifierTimeFact'])) {
-                        $column['identifierTimeFact']
-                            = TimeDimension::getTimeFactIdentifier($def['tableId'], $columnName);
-                    }
-                    break;
-                case 'IGNORE':
-                    continue;
-            }
-        }
-        return $def;
     }
 }

@@ -48,6 +48,7 @@ class ModelTest extends TestCase
         ];
         $this->refColDef = [
             'schemaReference' => 'refTable',
+            'reference' => 'id',
             'type' => 'REFERENCE'
         ];
         $this->tableDef = [
@@ -58,7 +59,10 @@ class ModelTest extends TestCase
                 'fact' => $this->factColDef,
                 'label' => $this->labelColDef,
                 'date' => $this->dateColDef,
-                'ref' => $this->refColDef
+                'ref' => $this->refColDef,
+                'ignore' => [
+                    'type' => 'IGNORE'
+                ]
             ]
         ];
         $this->def = [
@@ -243,5 +247,24 @@ class ModelTest extends TestCase
         $this->assertArrayHasKey('dataset', $model['projectModel']['datasets'][2]);
         $this->assertArrayHasKey('dateDimensions', $model['projectModel']);
         $this->assertCount(1, $model['projectModel']['dateDimensions']);
+    }
+
+    public function testRemoveIgnoredColumns()
+    {
+        $this->assertArrayHasKey('ignore', $this->tableDef['columns']);
+        $model = Model::removeIgnoredColumns($this->tableDef['columns']);
+        $this->assertArrayNotHasKey('ignore', $model);
+    }
+
+    public function testAddDefaultIdentifiers()
+    {
+        $model = Model::addDefaultIdentifiers($this->id, $this->tableDef);
+        $this->assertArrayHasKey('columns', $model);
+        $this->assertArrayHasKey('label', $model['columns']);
+        $this->assertArrayHasKey('identifier', $model['columns']['label']);
+        $this->assertArrayHasKey('date', $model['columns']);
+        $this->assertArrayHasKey('identifier', $model['columns']['date']);
+        $this->assertArrayHasKey('ref', $model['columns']);
+        $this->assertArrayHasKey('schemaReferenceConnectionLabel', $model['columns']['ref']);
     }
 }
