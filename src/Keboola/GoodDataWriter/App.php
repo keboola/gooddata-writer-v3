@@ -62,26 +62,42 @@ class App
         $projectModel = Model::getProjectLDM($projectDefinition);
         $this->gdClient->getProjectModel()->updateProject($pid, $projectModel);
 
-        $tables = $config['parameters']['tables'];
-        foreach ($config['storage']['input']['tables'] as $table) {
-            if (!isset($table['source']) || !isset($table['destination'])) {
-                throw new \Exception('Missing table source in storage: '
-                    . (new JsonEncode())->encode($config['storage'], JsonEncoder::FORMAT));
-            }
-            $tableId = $table['source'];
-            if (!isset($tables[$table['source']])) {
-                throw new UserException("Table $tableId is not configured");
-            }
-            $tableDefinition = Model::enhanceDefinition($tableId, $tables[$tableId], $projectDefinition);
-
+        // Load data
+        if (!empty($config['parameters']['multi'])) {
+            $tmpDir = $this->temp->getTmpFolder();
             $filesToUpload = [];
-            $tmpDir = $this->temp->getTmpFolder() . '/' . $tableId;
-            mkdir($tmpDir);
+            $definitions = [];
+            foreach ($config['storage']['input']['tables'] as $table) {
+                $tableId = $table['source'];
+                $tableDef = Model::enhanceDefinition(
+                    $tableId,
+                    $config['parameters']['tables'][$tableId],
+                    $projectDefinition
+                );
 
-            $filesToUpload[] = $this->createManifest($tableDefinition, $tmpDir);
-            $filesToUpload[] = $this->createCsv("$inputPath/{$table['destination']}", $tableDefinition, $tmpDir);
+                $filesToUpload[] = $this->createCsv("$inputPath/{$table['destination']}", $tableDef, $tmpDir);
+                $definitions[] = $tableDef;
+            }
+            $filesToUpload[] = $this->createMultiLoadManifest($definitions, $tmpDir);
+            $this->uploadFiles($config, $filesToUpload, $tmpDir);
+        } else {
+            foreach ($config['storage']['input']['tables'] as $table) {
+                $tableId = $table['source'];
+                $tableDef = Model::enhanceDefinition(
+                    $tableId,
+                    $config['parameters']['tables'][$tableId],
+                    $projectDefinition
+                );
 
-            $this->uploadFiles($config, $filesToUpload, $tableId, $tmpDir);
+                $filesToUpload = [];
+                $tmpDir = $this->temp->getTmpFolder() . '/' . $tableId;
+                mkdir($tmpDir);
+
+                $filesToUpload[] = $this->createManifest($tableDef, $tmpDir);
+                $filesToUpload[] = $this->createCsv("$inputPath/{$table['destination']}", $tableDef, $tmpDir);
+
+                $this->uploadFiles($config, $filesToUpload, $tmpDir, $tableId);
+            }
         }
     }
 
@@ -102,6 +118,15 @@ class App
         if (!isset($config['parameters']['tables']) || !count($config['parameters']['tables'])) {
             throw new UserException('There are no configured tables');
         }
+        foreach ($config['storage']['input']['tables'] as $table) {
+            if (!isset($table['source']) || !isset($table['destination'])) {
+                throw new \Exception('Wrong storage configuration: '
+                    . (new JsonEncode())->encode($config['storage'], JsonEncoder::FORMAT));
+            }
+            if (!isset($config['parameters']['tables'][$table['source']])) {
+                throw new UserException("Table {$table['source']} is not configured");
+            }
+        }
     }
 
     public function createDateDimension($pid, $dimensionName, $def)
@@ -121,6 +146,21 @@ class App
                 $td->loadData($pid, $dimensionName, $tmpDir);
             }
         }
+    }
+
+    public function createMultiLoadManifest($tableDefinitions, $tmpDir)
+    {
+        $manifest = ['dataSetSLIManifestList' => []];
+        foreach ($tableDefinitions as $tableDefinition) {
+            $manifest['dataSetSLIManifestList'][] = Datasets::getDataLoadManifest(
+                $tableDefinition['identifier'],
+                $tableDefinition['columns'],
+                !empty($tableDefinition['incremental'])
+            );
+        }
+        $manifestFile = "$tmpDir/upload_info.json";
+        file_put_contents($manifestFile, json_encode($manifest));
+        return $manifestFile;
     }
 
     public function createManifest($tableDefinition, $tmpDir)
@@ -146,7 +186,7 @@ class App
         return "$tmpDir/{$tableDefinition['identifier']}.csv";
     }
 
-    public function uploadFiles($config, $filesToUpload, $tableId, $tmpDir)
+    public function uploadFiles($config, $filesToUpload, $tmpDir, $tableId = null)
     {
         $folderName = 'kbc-' . date('Ymd-his');
         $webDav = new WebDav(
@@ -161,15 +201,16 @@ class App
         $uploadUrl = $webDav->getUrl() . $folderName . '/upload.zip';
         do {
             $webDav->uploadZip($filesToUpload, $webDav->getUrl() . $folderName);
+            $packageName = $tableId ? "table $tableId" : "multi-load";
             if ($webDav->fileExists($uploadUrl)) {
-                $this->logger->debug("Upload package for table $tableId transferred to GoodData");
+                $this->logger->debug("Upload package for $packageName transferred to GoodData");
                 break;
             }
             if ($repeat >= 5) {
-                throw new UserException("Transfer package for table $tableId has not been uploaded to '$uploadUrl'");
+                throw new UserException("Transfer package for $packageName has not been uploaded to '$uploadUrl'");
             }
             $repeat++;
-            $this->logger->warn("Transfer of package for table $tableId to GoodData failed, running try #{$repeat}");
+            $this->logger->warn("Transfer of package for $packageName to GoodData failed, running try #{$repeat}");
         } while ($repeat <= 5);
 
         try {
