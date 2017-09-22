@@ -1,0 +1,77 @@
+{
+  "parameters": {
+    "dimensions": {
+      "product date": {
+        "includeTime": true,
+        "template": "gooddata"
+      }
+    },
+    "tables": {
+      "out.c-main.categories": {
+        "title": "categories",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "order": {
+            "title": "order",
+            "type": "FACT"
+          }
+        }
+      },
+      "out.c-main.products": {
+        "title": "products",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "price": {
+            "title": "price",
+            "type": "FACT",
+            "dataType": "DECIMAL",
+            "dataTypeSize": "12,2"
+          },
+          "productdate": {
+            "type": "DATE",
+            "dateDimension": "product date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "info": {
+            "identifier": "label.outcmainproducts.id.info",
+            "title": "info",
+            "type": "LABEL",
+            "reference": "id"
+          },
+          "categories": {
+            "type": "REFERENCE",
+            "schemaReference": "out.c-main.categories"
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "input": {
+      "tables": [
+        {
+          "source": "out.c-main.categories",
+          "destination": "out.c_main.categories.csv"
+        },
+        {
+          "source": "out.c-main.products",
+          "destination": "out.c_main.products.csv"
+        }
+      ]
+    }
+  }
+}

@@ -73,9 +73,9 @@ class CsvHandler
         return $command;
     }
 
-    public function convert($gzipFile, $outFile, $columns)
+    public function convert($inFile, $outFile, $columns)
     {
-        $command = "({$this->getReadFileCommand($columns, $gzipFile)}) > $outFile";
+        $command = "({$this->getReadFileCommand($columns, $inFile)}) > $outFile";
         $process = new Process($command);
         $process->setTimeout(null);
         $process->run();

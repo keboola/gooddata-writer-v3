@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package gooddata-writer
+ * @copyright Keboola
+ * @author Jakub Matejka <jakub@keboola.com>
+ */
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\GoodDataWriter\UserException;

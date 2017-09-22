@@ -5,3 +5,4 @@ run-test.sh
 data
 build
 vars
+.env

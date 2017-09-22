@@ -18,7 +18,9 @@ services:
     volumes:
       - ./:/code
     environment:
-      - WR_GD_
+      - "GD_PID=${GD_PID}"
+      - "GD_USERNAME=${GD_USERNAME}"
+      - "GD_PASSWORD=${GD_PASSWORD}"
 
   ci-tests:
     build:
@@ -26,4 +28,6 @@ services:
       dockerfile: Dockerfile
     command: sh -c './tests.sh'
     environment:
-      - WR_GD_
+      - "GD_PID=${GD_PID}"
+      - "GD_USERNAME=${GD_USERNAME}"
+      - "GD_PASSWORD=${GD_PASSWORD}"
