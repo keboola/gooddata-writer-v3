@@ -8,7 +8,6 @@
 
 namespace Keboola\GoodDataWriter;
 
-use Keboola\GoodData\Datasets;
 use Keboola\GoodData\DateDimensions;
 use Keboola\GoodData\Identifiers;
 use Keboola\GoodData\TimeDimension;
@@ -405,9 +404,6 @@ class Model
                 throw new UserException("Grain cannot be created on data set without facts");
             }
 
-            if (!is_array($def['grain'])) {
-                $def['grain'] = explode(',', $def['grain']);
-            }
             foreach ($def['grain'] as $g) {
                 if (!isset($def['columns'][$g])) {
                     throw new UserException("Grain '{$g}' not found between dataset's columns");

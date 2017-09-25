@@ -38,10 +38,12 @@ class AppTest extends TestCase
         $params['parameters']['user']['#password'] = GD_PASSWORD;
         $params['parameters']['project']['pid'] = GD_PID;
 
+        $this->assertCount(0, $this->getDataSets(GD_PID));
         $app->run($params, __DIR__ . '/tables');
+        $this->assertCount(4, $this->getDataSets(GD_PID));
     }
 
-    public function cleanUpProject($pid)
+    protected function cleanUpProject($pid)
     {
         do {
             $error = false;
@@ -75,5 +77,15 @@ class AppTest extends TestCase
             } catch (Exception $e) {
             }
         }
+    }
+
+    protected function getDataSets($pid)
+    {
+        $call = $this->gdClient->get("/gdc/md/$pid/data/sets");
+        $existingDataSets = [];
+        foreach ($call['dataSetsInfo']['sets'] as $r) {
+            $existingDataSets[] = $r['meta']['identifier'];
+        }
+        return $existingDataSets;
     }
 }
