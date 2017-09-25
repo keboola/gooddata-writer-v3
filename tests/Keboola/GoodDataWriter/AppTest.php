@@ -40,7 +40,7 @@ class AppTest extends TestCase
 
         $this->assertCount(0, $this->getDataSets(GD_PID));
         $app->run($params, __DIR__ . '/tables');
-        $this->assertCount(4, $this->getDataSets(GD_PID));
+        $this->assertCount(5, $this->getDataSets(GD_PID));
     }
 
     protected function cleanUpProject($pid)

@@ -57,6 +57,40 @@
             "schemaReference": "out.c-main.categories"
           }
         }
+      },
+      "out.c-main.products-grain": {
+        "title": "products-grain",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "ATTRIBUTE"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "price": {
+            "title": "price",
+            "type": "FACT",
+            "dataType": "DECIMAL",
+            "dataTypeSize": "12,2"
+          },
+          "productdate": {
+            "type": "DATE",
+            "dateDimension": "product date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "info": {
+            "title": "info",
+            "type": "LABEL",
+            "reference": "id"
+          },
+          "categories": {
+            "type": "REFERENCE",
+            "schemaReference": "out.c-main.categories"
+          }
+        },
+        "grain": ["id", "productdate", "categories"]
       }
     }
   },
