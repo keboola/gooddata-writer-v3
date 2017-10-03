@@ -103,8 +103,6 @@ class App
         $this->gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
         if (isset($config['parameters']['project']['backendUrl'])) {
             $this->gdClient->setApiUrl($config['parameters']['project']['backendUrl']);
-        }
-        if (!empty($config['parameters']['project']['isWhiteLabel'])) {
             $this->gdClient->disableCheckDomain();
         }
         $this->gdClient->login($config['parameters']['user']['login'], $config['parameters']['user']['#password']);

@@ -60,6 +60,7 @@ GoodData Writer v3 for Keboola Docker Runner
 
 - **user** contains GoodData credentials
 - **project** contains pid of GoodData project
+    - **backendUrl** (optional) - custom base url to a white-labelled GoodData 
 - **dimensions** contains list of configured date dimensions
     - dimension's name is in object's key
     - **title** - pretty name of the dimension in GoodData
