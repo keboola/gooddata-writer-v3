@@ -1,5 +1,14 @@
 # gooddata-writer-v3
+[![Build Status](https://travis-ci.org/keboola/gooddata-writer-v3.svg?branch=master)](https://travis-ci.org/keboola/gooddata-writer-v3)
+[![Code Climate](https://codeclimate.com/github/keboola/gooddata-writer-v3/badges/gpa.svg)](https://codeclimate.com/github/keboola/gooddata-writer-v3)
+
 GoodData Writer v3 for Keboola Docker Runner
+
+The Writer by default alters GoodData project model according to the configuration and then loads data. 
+
+Tables can be loaded sequentially or at once (see https://help.gooddata.com/display/developer/Multiload+of+CSV+Data).
+
+For data load of selected tables use flag `loadOnly` to prevent model update (which would delete all non-uploaded tables from project).
 
 ## Configuration
 
