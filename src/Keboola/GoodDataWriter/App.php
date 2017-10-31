@@ -42,23 +42,26 @@ class App
             'dataSets' => $config['parameters']['tables'],
             'dimensions' => $config['parameters']['dimensions']
         ];
-        $projectModel = Model::getProjectLDM($projectDefinition);
 
-        // Date dimensions
-        if (isset($config['parameters']['dimensions']) && count($config['parameters']['dimensions'])) {
-            foreach ($config['parameters']['dimensions'] as $dimensionName => $dimension) {
-                $this->gdClient->createDateDimension([
-                    'pid' => $config['parameters']['project']['pid'],
-                    'name' => $dimensionName,
-                    'includeTime' => !empty($dimension['includeTime']),
-                    'template' => !empty($dimension['template']) ? $dimension['template'] : null,
-                    'identifier' => !empty($dimension['identifier']) ? $dimension['identifier'] : null
-                ]);
+        if (empty($config['parameters']['loadOnly'])) {
+            $projectModel = Model::getProjectLDM($projectDefinition);
+
+            // Date dimensions
+            if (isset($config['parameters']['dimensions']) && count($config['parameters']['dimensions'])) {
+                foreach ($config['parameters']['dimensions'] as $dimensionName => $dimension) {
+                    $this->gdClient->createDateDimension([
+                        'pid' => $config['parameters']['project']['pid'],
+                        'name' => $dimensionName,
+                        'includeTime' => !empty($dimension['includeTime']),
+                        'template' => !empty($dimension['template']) ? $dimension['template'] : null,
+                        'identifier' => !empty($dimension['identifier']) ? $dimension['identifier'] : null
+                    ]);
+                }
             }
-        }
 
-        // Update model
-        $this->gdClient->getProjectModel()->updateProject($config['parameters']['project']['pid'], $projectModel);
+            // Update model
+            $this->gdClient->getProjectModel()->updateProject($config['parameters']['project']['pid'], $projectModel);
+        }
 
         // Load data
         if (!empty($config['parameters']['multiLoad'])) {

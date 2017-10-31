@@ -59,8 +59,13 @@ GoodData Writer v3 for Keboola Docker Runner
 ```
 
 - **user** contains GoodData credentials
+    - **login**
+    - **#password**
 - **project** contains pid of GoodData project
-    - **backendUrl** (optional) - custom base url to a white-labelled GoodData 
+    - **pid**
+    - **backendUrl** (optional) - custom base url to a white-labelled GoodData
+- **multiLoad** - flag if the tables should be integrated one by one or all at once (may be good for some situations, see https://help.gooddata.com/display/developer/Multiload+of+CSV+Data)
+- **loadOnly** - skip model update, just load data 
 - **dimensions** contains list of configured date dimensions
     - dimension's name is in object's key
     - **title** - pretty name of the dimension in GoodData
@@ -98,4 +103,3 @@ GoodData Writer v3 for Keboola Docker Runner
         - **identifier** - custom GoodData identifier of the column  (makes sense only for types `CONNECTION_POINT`, `ATTRIBUTE` and `FACT`)
         - **identifierLabel** - custom GoodData identifier of attribute's default label (makes sense only for type `ATTRIBUTE`)
         - **identifierSortLabel** - custom GoodData identifier of attribute's sort label (makes sense only for type `ATTRIBUTE`)
-- `multiLoad` - flag if the tables should be integrated one by one or all at once (may be good for some situations, see https://help.gooddata.com/display/developer/Multiload+of+CSV+Data)
