@@ -16,6 +16,9 @@ use PHPUnit\Framework\TestCase;
 class ConfigTest extends TestCase
 {
     protected $config = [
+        'image_parameters' => [
+            'provisioning_url' => 'url'
+        ],
         'parameters' => [
             'user' => [
                 'login' => 'login',

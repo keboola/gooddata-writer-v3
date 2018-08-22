@@ -1,4 +1,7 @@
 {
+  "image_parameters": {
+    "provisioning_url": "url"
+  },
   "parameters": {
     "dimensions": {
       "product date": {
