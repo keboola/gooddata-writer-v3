@@ -7,6 +7,7 @@
 namespace Keboola\GoodDataWriter;
 
 use Keboola\GoodData\Client;
+use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -34,10 +35,36 @@ class App
         $this->temp->initRunFolder();
     }
 
+    public function checkProjectAccess(Client $gdClient, ProvisioningClient $provisioningClient, array $config)
+    {
+        try {
+            $gdClient->get("/gdc/projects/{$config['parameters']['project']['pid']}");
+        } catch (Exception $e) {
+            if ($e->getCode() !== 403) {
+                throw $e;
+            }
+
+            if (!getenv('KBC_TOKEN')) {
+                throw new \Exception('KBC Token is missing from the environment');
+            }
+            $provisioningClient->addUserToProject(
+                $config['parameters']['user']['login'],
+                $config['parameters']['project']['pid']
+            );
+        }
+        return true;
+    }
+
     public function run($config, $inputPath)
     {
         Config::check($config);
-        $this->gdClient = $this->initGoodDataClient($config);
+        $gdClient = $this->getGoodDataClient($config);
+        $provisioningClient = new ProvisioningClient(
+            $config['image_parameters']['provisioning_url'],
+            getenv('KBC_TOKEN'),
+            $this->logger
+        );
+        $this->checkProjectAccess($gdClient, $provisioningClient, $config);
         $projectDefinition = [
             'dataSets' => $config['parameters']['tables'],
             'dimensions' => $config['parameters']['dimensions']
@@ -49,7 +76,7 @@ class App
             // Date dimensions
             if (isset($config['parameters']['dimensions']) && count($config['parameters']['dimensions'])) {
                 foreach ($config['parameters']['dimensions'] as $dimensionName => $dimension) {
-                    $this->gdClient->createDateDimension([
+                    $gdClient->createDateDimension([
                         'pid' => $config['parameters']['project']['pid'],
                         'name' => $dimensionName,
                         'includeTime' => !empty($dimension['includeTime']),
@@ -60,13 +87,13 @@ class App
             }
 
             // Update model
-            $this->gdClient->getProjectModel()->updateProject($config['parameters']['project']['pid'], $projectModel);
+            $gdClient->getProjectModel()->updateProject($config['parameters']['project']['pid'], $projectModel);
         }
 
         // Load data
         if (!empty($config['parameters']['multiLoad'])) {
             $tmpDir = $this->temp->getTmpFolder();
-            $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
+            $upload = new Upload($gdClient, $this->logger, $tmpDir);
             $definitions = [];
             foreach ($config['storage']['input']['tables'] as $table) {
                 $tableId = $table['source'];
@@ -91,7 +118,7 @@ class App
 
                 $tmpDir = $this->temp->getTmpFolder() . '/' . $tableId;
                 mkdir($tmpDir);
-                $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
+                $upload = new Upload($gdClient, $this->logger, $tmpDir);
 
                 $upload->createSingleLoadManifest($tableDef);
                 $upload->createCsv("$inputPath/{$table['destination']}", $tableDef);
@@ -100,16 +127,18 @@ class App
         }
     }
 
-    protected function initGoodDataClient($config)
+    public function getGoodDataClient($config)
     {
-        $this->gdClient = new Client();
-        $this->gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
-        if (isset($config['parameters']['project']['backendUrl'])) {
-            $this->gdClient->setApiUrl($config['parameters']['project']['backendUrl']);
-            $this->gdClient->disableCheckDomain();
+        if (!$this->gdClient) {
+            $this->gdClient = new Client();
+            $this->gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
+            if (isset($config['parameters']['project']['backendUrl'])) {
+                $this->gdClient->setApiUrl($config['parameters']['project']['backendUrl']);
+                $this->gdClient->disableCheckDomain();
+            }
+            $this->gdClient->login($config['parameters']['user']['login'], $config['parameters']['user']['#password']);
+            $this->gdClient->setLogger($this->logger);
         }
-        $this->gdClient->login($config['parameters']['user']['login'], $config['parameters']['user']['#password']);
-        $this->gdClient->setLogger($this->logger);
         return $this->gdClient;
     }
 }

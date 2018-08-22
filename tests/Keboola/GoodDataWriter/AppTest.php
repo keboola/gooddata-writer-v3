@@ -26,21 +26,21 @@ class AppTest extends TestCase
 
         $this->gdClient = new Client();
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
-        $this->gdClient->login(GD_USERNAME, GD_PASSWORD);
-        $this->cleanUpProject(GD_PID);
+        $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
+        $this->cleanUpProject(getenv('GD_PID'));
     }
 
     public function testAppRun()
     {
         $app = new App(new ConsoleOutput());
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
-        $params['parameters']['user']['login'] = GD_USERNAME;
-        $params['parameters']['user']['#password'] = GD_PASSWORD;
-        $params['parameters']['project']['pid'] = GD_PID;
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = getenv('GD_PID');
 
-        $this->assertCount(0, $this->getDataSets(GD_PID));
+        $this->assertCount(0, $this->getDataSets(getenv('GD_PID')));
         $app->run($params, __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets(GD_PID));
+        $this->assertCount(5, $this->getDataSets(getenv('GD_PID')));
     }
 
     protected function cleanUpProject($pid)

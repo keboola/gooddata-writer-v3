@@ -37,6 +37,9 @@ class Config
                 throw new UserException("Table {$table['source']} is not configured");
             }
         }
+        if (!isset($config['image_parameters']['provisioning_url'])) {
+            throw new \Exception('Provisioning url is missing from image parameters');
+        }
         return true;
     }
 }

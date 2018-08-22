@@ -18,9 +18,12 @@ services:
     volumes:
       - ./:/code
     environment:
-      - "GD_PID=${GD_PID}"
-      - "GD_USERNAME=${GD_USERNAME}"
-      - "GD_PASSWORD=${GD_PASSWORD}"
+      - GD_PID
+      - GD_PID_2
+      - GD_USERNAME
+      - GD_PASSWORD
+      - KBC_TOKEN
+      - PROVISIONING_URL
 
   ci-tests:
     build:
@@ -28,6 +31,9 @@ services:
       dockerfile: Dockerfile
     command: sh -c './tests.sh'
     environment:
-      - "GD_PID=${GD_PID}"
-      - "GD_USERNAME=${GD_USERNAME}"
-      - "GD_PASSWORD=${GD_PASSWORD}"
+      - GD_PID
+      - GD_PID_2
+      - GD_USERNAME
+      - GD_PASSWORD
+      - KBC_TOKEN
+      - PROVISIONING_URL
