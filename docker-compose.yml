@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh -c './tests.sh'
+    command: composer build
     volumes:
       - ./:/code
     environment:
@@ -29,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh -c './tests.sh'
+    command: composer build
     environment:
       - GD_PID
       - GD_PID_2

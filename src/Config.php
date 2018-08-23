@@ -1,15 +1,14 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\Config\BaseConfig;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
-class Config
+class Config extends BaseConfig
 {
     public static function check($config)
     {
