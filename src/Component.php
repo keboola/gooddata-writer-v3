@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Keboola\GoodDataWriter;
 
 use Keboola\Component\BaseComponent;
+use Keboola\Component\UserException;
+use Keboola\GoodData\Client;
+use Keboola\Temp\Temp;
 
 class Component extends BaseComponent
 {
@@ -13,24 +16,51 @@ class Component extends BaseComponent
         /** @var Config $config */
         $config = $this->getConfig();
 
-        if (!file_exists($this->getDataDir() . '/out')) {
-            mkdir($this->getDataDir() . '/out');
+        if (!count($config->getInputTables())) {
+            throw new UserException('There are no tables on input');
         }
-        if (!file_exists($this->getDataDir() . '/out/tables')) {
-            mkdir($this->getDataDir() . '/out/tables');
+        $configTables = $config->getTables();
+        foreach ($config->getInputTables() as $table) {
+            if (!isset($configTables[$table['source']])) {
+                throw new UserException("Table {$table['source']} is not configured");
+            }
+        }
+        if (!isset($config->getImageParameters()['provisioning_url'])) {
+            throw new \Exception('Provisioning url is missing from image parameters');
         }
 
-        $api = new SklikApi($config->getToken(), $this->getLogger());
-        $userStorage = new UserStorage($this->getDataDir() . '/out/tables');
-        $extractor = new Extractor($api, $userStorage, $this->getLogger());
-        $extractor->run($config);
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $gdClient = $this->initGoodDataClient($config);
+
+        $provisioning = new ProvisioningClient(
+            $config->getImageParameters()['provisioning_url'],
+            getenv('KBC_TOKEN'),
+            $this->getLogger()
+        );
+
+        $app = new App($this->getLogger(), $temp, $gdClient, $provisioning);
+        $app->run($config, "{$this->getDataDir()}/in/tables");
+    }
+
+    public function initGoodDataClient(Config $config): Client
+    {
+        $gdClient = new Client();
+        $gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
+        if ($config->getProjectBackendUrl()) {
+            $gdClient->setApiUrl($config->getProjectBackendUrl());
+            $gdClient->disableCheckDomain();
+        }
+        $gdClient->login($config->getUserLogin(), $config->getUserPassword());
+        $gdClient->setLogger($this->getLogger());
+        return $gdClient;
     }
 
     protected function getConfigClass(): string
     {
         return Config::class;
     }
-
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;

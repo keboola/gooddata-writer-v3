@@ -1,26 +1,23 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: JakubM
- * Date: 30.01.14
- * Time: 11:03
- */
+
+declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\UserException;
 use Keboola\GoodData\DateDimensions;
 use Keboola\GoodData\Identifiers;
 use Keboola\GoodData\TimeDimension;
 
 class Model
 {
-    public static function getProjectLDM($def)
+    public static function getProjectLDM(array $def): array
     {
         $result = [
             'projectModel' => [
                 'datasets' => [],
-                'dateDimensions' => []
-            ]
+                'dateDimensions' => [],
+            ],
         ];
         if (isset($def['dataSets'])) {
             $dataSets = [];
@@ -53,7 +50,7 @@ class Model
         return $result;
     }
 
-    public static function getDataSetLDM($id, $def)
+    public static function getDataSetLDM(string $id, array $def): array
     {
         // add default connection point
         $dataSet = [
@@ -63,9 +60,9 @@ class Model
                 'attribute' => [
                     'identifier' => !empty($def['anchorIdentifier']) ? $def['anchorIdentifier']
                         : Identifiers::getImplicitConnectionPointId($id),
-                    'title' => sprintf('Records of %s', self::getTitleFromDefinition($id, $def))
-                ]
-            ]
+                    'title' => sprintf('Records of %s', self::getTitleFromDefinition($id, $def)),
+                ],
+            ],
         ];
 
         if (!empty($def['grain'])) {
@@ -122,7 +119,7 @@ class Model
                             'identifier' => !empty($column['identifierTimeFact']) ? $column['identifierTimeFact']
                                 : TimeDimension::getTimeFactIdentifier($id, $columnName),
                             'title' => "$columnTitle Time",
-                            'dataType' => 'INT'
+                            'dataType' => 'INT',
                         ]);
                     }
                     break;
@@ -149,23 +146,23 @@ class Model
         return ['dataset' => $dataSet];
     }
 
-    public static function getDatasetIdFromDefinition($id, $def)
+    public static function getDatasetIdFromDefinition(string $id, array $def): string
     {
         return !empty($def['identifier']) ? $def['identifier'] : Identifiers::getDatasetId($id);
     }
 
-    public static function getTitleFromDefinition($id, $def)
+    public static function getTitleFromDefinition(string $id, array $def): string
     {
         return !empty($def['title']) ? $def['title'] : $id;
     }
 
-    public static function getDefaultLabelId($datasetId, $name, $column)
+    public static function getDefaultLabelId(string $datasetId, string $name, array $column): string
     {
         return !empty($column['identifierLabel'])
             ? $column['identifierLabel'] : Identifiers::getLabelId($datasetId, $name);
     }
 
-    public static function getColumnDataType($column)
+    public static function getColumnDataType(array $column): string
     {
         if (!empty($column['dataType'])) {
             $res = $column['dataType'];
@@ -174,20 +171,20 @@ class Model
             }
             return $res;
         }
-        return false;
+        return '';
     }
 
-    public static function getDateDimensionLDM($name, $def)
+    public static function getDateDimensionLDM(string $name, array $def): array
     {
         return [
             'dateDimension' => [
                 'name' => !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
-                'title' => $name
-            ]
+                'title' => $name,
+            ],
         ];
     }
 
-    public static function getTimeDimensionLDM($name, $def)
+    public static function getTimeDimensionLDM(string $name, array $def): array
     {
         return ['dataset' => TimeDimension::getLDM(
             !empty($def['identifier']) ? $def['identifier'] : Identifiers::getIdentifier($name),
@@ -195,13 +192,13 @@ class Model
         )];
     }
 
-    public static function getFactLDM($datasetId, $name, $column)
+    public static function getFactLDM(string $datasetId, string $name, array $column): array
     {
         $fact = [
             'identifier' => !empty($column['identifier']) ? $column['identifier']
                 : Identifiers::getFactId($datasetId, $name),
             'title' => self::getTitleFromDefinition($name, $column),
-            'deprecated' => false
+            'deprecated' => false,
         ];
         if ($dataType = self::getColumnDataType($column)) {
             $fact['dataType'] = $dataType;
@@ -209,7 +206,7 @@ class Model
         return ['fact' => $fact];
     }
 
-    public static function getAttributeLDM($datasetId, $datasetDef, $name, $column)
+    public static function getAttributeLDM(string $datasetId, array $datasetDef, string $name, array $column): array
     {
         $attribute = [
             'identifier' => !empty($column['identifier'])
@@ -217,7 +214,7 @@ class Model
             'title' => self::getTitleFromDefinition($name, $column),
             'defaultLabel' => self::getDefaultLabelId($datasetId, $name, $column),
             'folder' => self::getTitleFromDefinition($datasetId, $datasetDef),
-            'deprecated' => false
+            'deprecated' => false,
         ];
 
         if (!empty($column['sortLabel'])) {
@@ -233,19 +230,19 @@ class Model
             $attribute['sortOrder'] = [
                 'attributeSortOrder' => [
                     'label' => $column['identifierSortLabel'],
-                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC'
-                ]
+                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC',
+                ],
             ];
         }
         return ['attribute' => $attribute];
     }
 
-    public static function getLabelLDM($datasetId, $name, $column)
+    public static function getLabelLDM(string $datasetId, string $name, array $column): array
     {
         $label = [
             'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
             'title' => self::getTitleFromDefinition($name, $column),
-            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text')
+            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text'),
         ];
         if ($dataType = self::getColumnDataType($column)) {
             $label['dataType'] = $dataType;
@@ -255,8 +252,12 @@ class Model
         return ['label' => $label];
     }
 
-    public static function addDateDimensionDefinition($columnName, $column, $dataSetId, $def)
-    {
+    public static function addDateDimensionDefinition(
+        string $columnName,
+        array $column,
+        string $dataSetId,
+        array $def
+    ): array {
         if (empty($column['dateDimension']) || !isset($def['dimensions'][$column['dateDimension']])) {
             throw new UserException("Date column '{$columnName}' of dataset $dataSetId does not have "
                 . "a valid date dimension assigned");
@@ -269,8 +270,12 @@ class Model
         return $column;
     }
 
-    public static function addReferenceDefinition($columnName, $column, $dataSetId, $def)
-    {
+    public static function addReferenceDefinition(
+        string $columnName,
+        array $column,
+        string $dataSetId,
+        array $def
+    ): array {
         if (empty($column['schemaReference']) || !isset($def['dataSets'][$column['schemaReference']])) {
             throw new UserException("Schema reference of column '{$columnName}' of dataset $dataSetId is invalid");
         }
@@ -300,7 +305,7 @@ class Model
         return $column;
     }
 
-    public static function removeIgnoredColumns($columns)
+    public static function removeIgnoredColumns(array $columns): array
     {
         $result = [];
         foreach ($columns as $columnName => $column) {
@@ -311,7 +316,7 @@ class Model
         return $result;
     }
 
-    public static function addDefaultIdentifiers($tableId, $def)
+    public static function addDefaultIdentifiers(string $tableId, array $def): array
     {
         if (empty($def['identifier'])) {
             $def['identifier'] = Identifiers::getDatasetId($tableId);
@@ -370,7 +375,7 @@ class Model
         return $def;
     }
 
-    public static function enhanceDefinition($tableId, $def, $projectDef)
+    public static function enhanceDefinition(string $tableId, array $def, array $projectDef): array
     {
         $result = $def;
         $result['columns'] = self::removeIgnoredColumns($def['columns']);
@@ -387,7 +392,7 @@ class Model
     }
 
 
-    private static function getGrain($id, $def)
+    private static function getGrain(string $id, array $def): array
     {
         $result = [];
         if (!empty($def['grain'])) {

@@ -14,6 +14,7 @@
     "php": "^7.1",
     "guzzlehttp/guzzle": "^6.3",
     "keboola/gooddata-php-client": "v3.x-dev@dev",
+    "keboola/php-component": "^4.2",
     "keboola/php-temp": "^1.0",
     "monolog/monolog": "^1.23",
     "symfony/process": "^4.0",

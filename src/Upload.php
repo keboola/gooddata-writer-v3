@@ -1,35 +1,35 @@
 <?php
-/**
- * @package gooddata-writer-v3
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Datasets;
 use Keboola\GoodData\Exception;
 use Keboola\GoodData\WebDav;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Upload
 {
     /** @var  Client */
     protected $gdClient;
-    /** @var  Logger */
+    /** @var  LoggerInterface */
     protected $logger;
+    /** @var string  */
     protected $tmpDir;
+    /** @var array  */
     protected $files = [];
 
-    public function __construct($gdClient, Logger $logger, $tmpDir)
+    public function __construct(Client $gdClient, LoggerInterface $logger, string $tmpDir)
     {
         $this->gdClient = $gdClient;
         $this->logger = $logger;
         $this->tmpDir = $tmpDir;
     }
 
-    public function createCsv($inputFile, $tableDefinition)
+    public function createCsv(string $inputFile, array $tableDefinition): void
     {
         $outputFile = "{$this->tmpDir}/{$tableDefinition['identifier']}.csv";
         $csvHandler = new CsvHandler($this->logger);
@@ -37,7 +37,7 @@ class Upload
         $this->files[] = $outputFile;
     }
 
-    public function createSingleLoadManifest($tableDefinition)
+    public function createSingleLoadManifest(array $tableDefinition): void
     {
         $manifest = Datasets::getDataLoadManifest(
             $tableDefinition['identifier'],
@@ -49,7 +49,7 @@ class Upload
         $this->files[] = $manifestFile;
     }
 
-    public function createMultiLoadManifest($tableDefinitions)
+    public function createMultiLoadManifest(array $tableDefinitions): void
     {
         $manifest = ['dataSetSLIManifestList' => []];
         foreach ($tableDefinitions as $tableDefinition) {
@@ -64,12 +64,12 @@ class Upload
         $this->files[] = $manifestFile;
     }
 
-    public function upload($config, $tableId = null)
+    public function upload(string $pid, ?string $tableId = null): void
     {
         $folderName = sprintf('kbc-%s-%s', date('Ymd-his'), uniqid());
         $webDav = new WebDav(
-            $config['parameters']['user']['login'],
-            $config['parameters']['user']['#password'],
+            $this->gdClient->getUsername(),
+            $this->gdClient->getPassword(),
             $this->gdClient->getUserUploadUrl()
         );
         $webDav->createFolder($folderName);
@@ -88,16 +88,16 @@ class Upload
                 throw new UserException("Transfer package for $packageName has not been uploaded to '$uploadUrl'");
             }
             $repeat++;
-            $this->logger->warn("Transfer of package for $packageName to GoodData failed, running try #{$repeat}");
+            $this->logger->warning("Transfer of package for $packageName to GoodData failed, running try #{$repeat}");
         } while ($repeat <= 5);
 
         try {
-            $this->gdClient->getDatasets()->loadData($config['parameters']['project']['pid'], $folderName);
+            $this->gdClient->getDatasets()->loadData($pid, $folderName);
         } catch (Exception $e) {
             $debugFile = "{$this->tmpDir}/etl.log";
             $logSaved = $webDav->saveLogs($folderName, $debugFile);
             if ($logSaved) {
-                $this->logger->err('Data load error: ' . file_get_contents($debugFile));
+                $this->logger->error('Data load error: ' . file_get_contents($debugFile));
             }
 
             $data = $e->getData();

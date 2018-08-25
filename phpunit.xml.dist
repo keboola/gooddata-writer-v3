@@ -7,22 +7,15 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         syntaxCheck="false"
          bootstrap="vendor/autoload.php">
 
     <testsuite name="main">
-        <directory>tests/Keboola/GoodDataWriter</directory>
+        <directory>tests</directory>
     </testsuite>
 
     <filter>
         <whitelist>
             <directory suffix=".php">src</directory>
         </whitelist>
-        <blacklist>
-            <file>src/run.php</file>
-            <directory>build</directory>
-            <directory>tests</directory>
-            <directory>vendor</directory>
-        </blacklist>
     </filter>
 </phpunit>

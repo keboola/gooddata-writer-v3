@@ -1,16 +1,18 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Exception;
 use Keboola\GoodDataWriter\App;
+use Keboola\GoodDataWriter\Config;
+use Keboola\GoodDataWriter\ConfigDefinition;
+use Keboola\GoodDataWriter\ProvisioningClient;
+use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Psr\Log\NullLogger;
 
 /**
  * @covers \Keboola\GoodDataWriter\App
@@ -18,9 +20,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 class AppTest extends TestCase
 {
+    /** @var Client  */
     protected $gdClient;
 
-    public function __construct($name = null, array $data = [], $dataName = '')
+    public function __construct(?string $name = null, array $data = [], string $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
 
@@ -30,20 +33,31 @@ class AppTest extends TestCase
         $this->cleanUpProject(getenv('GD_PID'));
     }
 
-    public function testAppRun()
+    public function testAppRun(): void
     {
-        $app = new App(new ConsoleOutput());
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = new ProvisioningClient(
+            getenv('PROVISIONING_URL'),
+            getenv('KBC_TOKEN'),
+            $logger
+        );
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
 
         $this->assertCount(0, $this->getDataSets(getenv('GD_PID')));
-        $app->run($params, __DIR__ . '/tables');
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
         $this->assertCount(5, $this->getDataSets(getenv('GD_PID')));
     }
 
-    protected function cleanUpProject($pid)
+    protected function cleanUpProject(string $pid): void
     {
         do {
             $error = false;
@@ -79,7 +93,7 @@ class AppTest extends TestCase
         }
     }
 
-    protected function getDataSets($pid)
+    protected function getDataSets(string $pid): array
     {
         $call = $this->gdClient->get("/gdc/md/$pid/data/sets");
         $existingDataSets = [];

@@ -1,12 +1,10 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter\Test;
 
-use Keboola\GoodDataWriter\UserException;
+use Keboola\Component\UserException;
 use Keboola\GoodDataWriter\Model;
 use PHPUnit\Framework\TestCase;
 
@@ -15,16 +13,24 @@ use PHPUnit\Framework\TestCase;
  */
 class ModelTest extends TestCase
 {
+    /** @var array */
     protected $def;
+    /** @var string */
     protected $id;
+    /** @var array */
     protected $tableDef;
+    /** @var array */
     protected $factColDef;
+    /** @var array */
     protected $attrColDef;
+    /** @var array */
     protected $labelColDef;
+    /** @var array */
     protected $dateColDef;
+    /** @var array */
     protected $refColDef;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->id = 'id' . uniqid();
         $this->factColDef = [
@@ -32,7 +38,7 @@ class ModelTest extends TestCase
             'title' => uniqid(),
             'dataType' => 'DECIMAL',
             'dataTypeSize' => '12,2',
-            'type' => 'FACT'
+            'type' => 'FACT',
         ];
         $this->attrColDef = [
             'identifier' => uniqid(),
@@ -40,21 +46,21 @@ class ModelTest extends TestCase
             'title' => uniqid(),
             'sortOrder' => 'DESC',
             'sortLabel' => 'label',
-            'type' => 'ATTRIBUTE'
+            'type' => 'ATTRIBUTE',
         ];
         $this->labelColDef = [
             'title' => "l" . uniqid(),
             'reference' => 'attr',
-            'type' => 'HYPERLINK'
+            'type' => 'HYPERLINK',
         ];
         $this->dateColDef = [
             'dateDimension' => 'Date 1',
-            'type' => 'DATE'
+            'type' => 'DATE',
         ];
         $this->refColDef = [
             'schemaReference' => 'refTable',
             'reference' => 'id',
-            'type' => 'REFERENCE'
+            'type' => 'REFERENCE',
         ];
         $this->tableDef = [
             'identifier' => uniqid(),
@@ -66,60 +72,66 @@ class ModelTest extends TestCase
                 'date' => $this->dateColDef,
                 'ref' => $this->refColDef,
                 'ignore' => [
-                    'type' => 'IGNORE'
-                ]
-            ]
+                    'type' => 'IGNORE',
+                ],
+            ],
         ];
         $this->def = [
             'dataSets' => [
-                $this->id => $this->tableDef
+                $this->id => $this->tableDef,
             ],
             'dimensions' => [
                 'Date 1' => [
                     'template' => 'keboola',
-                    'includeTime' => true
-                ]
-            ]
+                    'includeTime' => true,
+                ],
+            ],
         ];
     }
 
-    public function testGetDatasetIdFromDefinition()
+    public function testGetDatasetIdFromDefinition(): void
     {
-        $this->assertEquals($this->tableDef['identifier'], Model::getDatasetIdFromDefinition($this->id, $this->tableDef));
+        $this->assertEquals(
+            $this->tableDef['identifier'],
+            Model::getDatasetIdFromDefinition($this->id, $this->tableDef)
+        );
         $this->assertEquals("dataset.{$this->id}", Model::getDatasetIdFromDefinition($this->id, []));
         $this->assertEquals("dataset.{$this->id}s", Model::getDatasetIdFromDefinition("$this->id.š", []));
     }
 
-    public function testGetTitleFromDefinition()
+    public function testGetTitleFromDefinition(): void
     {
         $this->assertEquals($this->tableDef['title'], Model::getTitleFromDefinition($this->id, $this->tableDef));
         $this->assertEquals($this->id, Model::getTitleFromDefinition($this->id, []));
     }
 
-    public function testGetDefaultLabelId()
+    public function testGetDefaultLabelId(): void
     {
         $name = 't' . uniqid();
-        $this->assertEquals($this->attrColDef['identifierLabel'], Model::getDefaultLabelId($this->id, $name, $this->attrColDef));
+        $this->assertEquals(
+            $this->attrColDef['identifierLabel'],
+            Model::getDefaultLabelId($this->id, $name, $this->attrColDef)
+        );
         $this->assertEquals("label.{$this->id}.{$name}", Model::getDefaultLabelId($this->id, $name, []));
     }
 
-    public function testGetColumnDataType()
+    public function testGetColumnDataType(): void
     {
         $this->assertEquals('DECIMAL(12,2)', Model::getColumnDataType($this->factColDef));
     }
 
-    public function testGetDateDimensionLDM()
+    public function testGetDateDimensionLDM(): void
     {
         $name = uniqid();
         $this->assertEquals([
             'dateDimension' => [
                 'name' => $this->tableDef['identifier'],
-                'title' => $name
-            ]
+                'title' => $name,
+            ],
         ], Model::getDateDimensionLDM($name, $this->tableDef));
     }
 
-    public function testGetTimeDimensionLDM()
+    public function testGetTimeDimensionLDM(): void
     {
         $name = 't' . uniqid();
         $model = Model::getTimeDimensionLDM($name, []);
@@ -133,17 +145,17 @@ class ModelTest extends TestCase
         $this->assertEquals("attr.time.second.of.day.$name", $model['dataset']['anchor']['attribute']['identifier']);
     }
 
-    public function testGetFactLDM()
+    public function testGetFactLDM(): void
     {
         $this->assertEquals(['fact' => [
             'identifier' => $this->factColDef['identifier'],
             'title' => $this->factColDef['title'],
             'deprecated' => false,
-            'dataType' => 'DECIMAL(12,2)'
+            'dataType' => 'DECIMAL(12,2)',
         ]], Model::getFactLDM($this->id, uniqid(), $this->factColDef));
     }
 
-    public function testGetAttributeLDM()
+    public function testGetAttributeLDM(): void
     {
         $model = Model::getAttributeLDM($this->id, $this->tableDef, 'attr', $this->attrColDef);
         $this->assertArrayHasKey('attribute', $model);
@@ -154,11 +166,14 @@ class ModelTest extends TestCase
         $this->assertArrayHasKey('attributeSortOrder', $model['attribute']['sortOrder']);
         $this->assertArrayHasKey('label', $model['attribute']['sortOrder']['attributeSortOrder']);
         $this->assertArrayHasKey('direction', $model['attribute']['sortOrder']['attributeSortOrder']);
-        $this->assertEquals("label.{$this->id}.attr.label", $model['attribute']['sortOrder']['attributeSortOrder']['label']);
+        $this->assertEquals(
+            "label.{$this->id}.attr.label",
+            $model['attribute']['sortOrder']['attributeSortOrder']['label']
+        );
         $this->assertEquals('DESC', $model['attribute']['sortOrder']['attributeSortOrder']['direction']);
     }
 
-    public function testGetLabelLDM()
+    public function testGetLabelLDM(): void
     {
         $model = Model::getLabelLDM($this->id, 'label', $this->labelColDef);
         $this->assertArrayHasKey('label', $model);
@@ -170,7 +185,7 @@ class ModelTest extends TestCase
         $this->assertEquals('VARCHAR(255)', $model['label']['dataType']);
     }
 
-    public function testAddDateDimensionDefinition()
+    public function testAddDateDimensionDefinition(): void
     {
         $model = Model::addDateDimensionDefinition('date', $this->dateColDef, $this->id, $this->def);
         $this->assertArrayHasKey('dateDimension', $model);
@@ -183,13 +198,13 @@ class ModelTest extends TestCase
         $this->assertEquals('keboola', $model['template']);
     }
 
-    public function testAddReferenceDefinitionMissingTable()
+    public function testAddReferenceDefinitionMissingTable(): void
     {
         $this->expectException(UserException::class);
         Model::addReferenceDefinition('ref', $this->refColDef, $this->id, $this->tableDef);
     }
 
-    public function testAddReferenceDefinitionMissingConnection()
+    public function testAddReferenceDefinitionMissingConnection(): void
     {
         $this->expectException(UserException::class);
         $tableDef = $this->tableDef;
@@ -197,7 +212,7 @@ class ModelTest extends TestCase
         Model::addReferenceDefinition('ref', $this->refColDef, $this->id, $tableDef);
     }
 
-    public function testAddReferenceDefinition()
+    public function testAddReferenceDefinition(): void
     {
         $tableDef = $this->tableDef;
         $tableDef['dataSets']['refTable'] = ['columns' => ['id' => ['type' => 'CONNECTION_POINT']]];
@@ -216,7 +231,7 @@ class ModelTest extends TestCase
         $this->assertEquals('label.reftable.id', $model['schemaReferenceConnectionLabel']);
     }
 
-    public function testGetDatasetLDM()
+    public function testGetDatasetLDM(): void
     {
         $model = Model::getDataSetLDM($this->id, $this->tableDef);
         $this->assertArrayHasKey('dataset', $model);
@@ -241,7 +256,7 @@ class ModelTest extends TestCase
         $this->assertEquals(['date1', 'dataset.reftable'], $model['dataset']['references']);
     }
 
-    public function testGetProjectLDM()
+    public function testGetProjectLDM(): void
     {
         $def = $this->def;
         $def['dataSets']['refTable'] = ['columns' => ['id' => ['type' => 'CONNECTION_POINT']]];
@@ -254,14 +269,14 @@ class ModelTest extends TestCase
         $this->assertCount(1, $model['projectModel']['dateDimensions']);
     }
 
-    public function testRemoveIgnoredColumns()
+    public function testRemoveIgnoredColumns(): void
     {
         $this->assertArrayHasKey('ignore', $this->tableDef['columns']);
         $model = Model::removeIgnoredColumns($this->tableDef['columns']);
         $this->assertArrayNotHasKey('ignore', $model);
     }
 
-    public function testAddDefaultIdentifiers()
+    public function testAddDefaultIdentifiers(): void
     {
         $model = Model::addDefaultIdentifiers($this->id, $this->tableDef);
         $this->assertArrayHasKey('columns', $model);
