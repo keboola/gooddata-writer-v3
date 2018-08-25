@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
-use Monolog\Formatter\FormatterInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class ProvisioningClient
 {
-    const RETRIES_COUNT = 5;
+    protected const RETRIES_COUNT = 5;
 
     /** @var array  */
     protected $guzzleOptions;
@@ -27,8 +28,8 @@ class ProvisioningClient
     public function __construct(
         string $url,
         string $token,
-        LoggerInterface $logger = null,
-        FormatterInterface $loggerFormatter = null,
+        ?LoggerInterface $logger = null,
+        ?MessageFormatter $loggerFormatter = null,
         array $options = []
     ) {
         $this->guzzleOptions = $options;
@@ -49,16 +50,26 @@ class ProvisioningClient
 
         /** @noinspection PhpUnusedParameterInspection */
         $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+            function (
+                int $retries,
+                RequestInterface $request,
+                ?ResponseInterface $response = null,
+                ?string $error = null
+            ) {
                 return $response && $response->getStatusCode() == 503;
             },
-            function ($retries) {
+            function (int $retries) {
                 return rand(60, 600) * 1000;
             }
         ));
         /** @noinspection PhpUnusedParameterInspection */
         $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+            function (
+                int $retries,
+                RequestInterface $request,
+                ?ResponseInterface $response = null,
+                ?string $error = null
+            ) {
                 if ($retries >= self::RETRIES_COUNT) {
                     return false;
                 } elseif ($response && $response->getStatusCode() > 499) {
@@ -80,14 +91,14 @@ class ProvisioningClient
         }
         $this->client = new Client(array_merge([
             'handler' => $handlerStack,
-            'cookies' => true
+            'cookies' => true,
         ], $this->guzzleOptions));
     }
 
-    public function addUserToProject(string $login, string $pid)
+    public function addUserToProject(string $login, string $pid): void
     {
         $options = $this->guzzleOptions;
         $options['json'] = ['role' => 'admin'];
-        return $this->client->request('POST', "/projects/$pid/users/$login", $options);
+        $this->client->request('POST', "/projects/$pid/users/$login", $options);
     }
 }

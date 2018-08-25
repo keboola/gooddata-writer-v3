@@ -1,9 +1,7 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\GoodData\Identifiers;
@@ -13,7 +11,7 @@ use Symfony\Component\Process\Process;
 
 class CsvHandlerTest extends TestCase
 {
-    public function testCsvConvert()
+    public function testCsvConvert(): void
     {
         $tableId = 'out.c-main.data';
         $definition = $this->getDefinition($tableId);
@@ -25,7 +23,7 @@ class CsvHandlerTest extends TestCase
         $this->compareFiles($inFile, $outFile);
     }
 
-    protected function createCsv()
+    protected function createCsv(): string
     {
         $csvFile = sys_get_temp_dir() . '/' . uniqid() . '.csv';
         $fp = fopen($csvFile, 'w');
@@ -36,7 +34,7 @@ class CsvHandlerTest extends TestCase
         return $csvFile;
     }
 
-    protected function compareFiles($csvIn, $csvOut)
+    protected function compareFiles(string $csvIn, string $csvOut): void
     {
         $start = strtotime('1900-01-01 00:00:00');
         $fileIn = new \SplFileObject($csvIn);
@@ -58,7 +56,7 @@ class CsvHandlerTest extends TestCase
         }
     }
 
-    protected function getDefinition($tableId)
+    protected function getDefinition(string $tableId): array
     {
         return ['dataSets' => [
             [
@@ -70,18 +68,18 @@ class CsvHandlerTest extends TestCase
                         'identifier' => "fact.".Identifiers::getIdentifier($tableId).".id",
                         'identifierLabel' => "label.".Identifiers::getIdentifier($tableId).".id",
                         'title' => 'Id',
-                        'type' => 'CONNECTION_POINT'
+                        'type' => 'CONNECTION_POINT',
                     ],
                     'attr' => [
                         'identifier' => "attr.".Identifiers::getIdentifier($tableId).".attr",
                         'identifierLabel' => "label.".Identifiers::getIdentifier($tableId).".col2",
                         'title' => 'Attr',
-                        'type' => 'ATTRIBUTE'
+                        'type' => 'ATTRIBUTE',
                     ],
                     'fact' => [
                         'identifier' => "fact.".Identifiers::getIdentifier($tableId).".fact",
                         'title' => 'Fact',
-                        'type' => 'FACT'
+                        'type' => 'FACT',
                     ],
                     'date' => [
                         'identifier' => 'test',
@@ -90,10 +88,10 @@ class CsvHandlerTest extends TestCase
                         'format' => 'yyyy-MM-dd HH:mm:ss',
                         'includeTime' => true,
                         'title' => 'date',
-                        'type' => 'DATE'
-                    ]
-                ]
-            ]
+                        'type' => 'DATE',
+                    ],
+                ],
+            ],
         ], 'dimensions' => []];
     }
 }

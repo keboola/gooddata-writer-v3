@@ -1,18 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\GoodData\Client;
-use Keboola\GoodData\Exception;
 use Keboola\GoodDataWriter\App;
-use Keboola\GoodDataWriter\ProvisioningClient;
+use Keboola\GoodDataWriter\Config;
+use Keboola\GoodDataWriter\ConfigDefinition;
+use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Psr\Log\NullLogger;
 
 class ProvisioningTest extends TestCase
 {
+    /** @var Client  */
     protected $gdClient;
 
-    public function __construct($name = null, array $data = [], $dataName = '')
+    public function __construct(?string $name = null, array $data = [], string $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
 
@@ -21,35 +26,57 @@ class ProvisioningTest extends TestCase
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
     }
 
-    public function testProvisioningAccessHasAccess()
+    public function testProvisioningAccessHasAccess(): void
     {
-        $config = [
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
+        $provisioning->shouldNotReceive('addUserToProject');
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+
+        $config = new Config([
             'parameters' => [
                 'project' => ['pid' => getenv('GD_PID')],
-                'user' => ['login' => getenv('GD_USERNAME'), '#password' => getenv('GD_PASSWORD')],
+                'user' => [
+                    'login' => getenv('GD_USERNAME'),
+                    '#password' => getenv('GD_PASSWORD'),
+                ],
+                'tables' => [],
             ],
             'image_parameters' => ['provisioning_url' => getenv('PROVISIONING_URL')],
-        ];
+        ], new ConfigDefinition());
 
-        $app = new App(new ConsoleOutput());
-        $provisioningClient = \Mockery::mock(ProvisioningClient::class);
-        $provisioningClient->shouldNotReceive('addUserToProject');
-        $this->assertTrue($app->checkProjectAccess($this->gdClient, $provisioningClient, $config));
+        $this->assertTrue($app->checkProjectAccess($config));
     }
 
-    public function testProvisioningProjectAccess()
+    public function testProvisioningProjectAccess(): void
     {
-        $config = [
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
+        $provisioning->shouldNotReceive('addUserToProject');
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+
+        $config = new Config([
             'parameters' => [
                 'project' => ['pid' => getenv('GD_PID_2')],
-                'user' => ['login' => getenv('GD_USERNAME'), '#password' => getenv('GD_PASSWORD')],
+                'user' => [
+                    'login' => getenv('GD_USERNAME'),
+                    '#password' => getenv('GD_PASSWORD'),
+                ],
+                'tables' => [],
             ],
             'image_parameters' => ['provisioning_url' => getenv('PROVISIONING_URL')],
-        ];
+        ], new ConfigDefinition());
 
-        $app = new App(new ConsoleOutput());
-        $provisioningClient = \Mockery::mock(ProvisioningClient::class);
-        $provisioningClient->shouldReceive('addUserToProject')->times(1);
-        $this->assertTrue($app->checkProjectAccess($this->gdClient, $provisioningClient, $config));
+        $this->assertTrue($app->checkProjectAccess($config));
     }
 }

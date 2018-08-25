@@ -1,20 +1,20 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\UserException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
 
 class CsvHandler
 {
-    const CONVERT_SCRIPT_PATH = __DIR__ . '/convert_csv.php';
-    /** @var \Monolog\Logger  */
-    private $logger;
+    protected const CONVERT_SCRIPT_PATH = __DIR__ . '/convert_csv.php';
+    /** @var LoggerInterface  */
+    protected $logger;
 
-    public function __construct($logger = null)
+    public function __construct(?LoggerInterface $logger = null)
     {
         if ($logger) {
             $this->logger = $logger;
@@ -24,7 +24,7 @@ class CsvHandler
         }
     }
 
-    protected static function getColumnNames($columns)
+    protected static function getColumnNames(array $columns): array
     {
         $csvHeaders = [];
         foreach ($columns as $columnName => $column) {
@@ -42,7 +42,7 @@ class CsvHandler
     /**
      * Parse csv and prepare for data load
      */
-    protected function getConvertCsvCommand($columns)
+    protected function getConvertCsvCommand(array $columns): string
     {
         $timeColumns = [];
         $i = 1;
@@ -54,13 +54,13 @@ class CsvHandler
         }
 
         if (!count($timeColumns)) {
-            return false;
+            return '';
         }
 
         return 'php ' . escapeshellarg(self::CONVERT_SCRIPT_PATH) . ' -t' . implode(',', $timeColumns);
     }
 
-    protected function getReadFileCommand($columns, $csvFile)
+    protected function getReadFileCommand(array $columns, string $csvFile): string
     {
         $command =
             'echo ' . escapeshellarg('"' . implode('","', self::getColumnNames($columns)) . '"') . '; '
@@ -73,7 +73,7 @@ class CsvHandler
         return $command;
     }
 
-    public function convert($inFile, $outFile, $columns)
+    public function convert(string $inFile, string $outFile, array $columns): array
     {
         $command = "({$this->getReadFileCommand($columns, $inFile)}) > $outFile";
         $process = new Process($command);
@@ -86,7 +86,7 @@ class CsvHandler
                 "gzip: (stdin): unexpected end of file",
                 "tail: write error: Broken pipe",
                 "tail: write error",
-                "cat: stdout: Broken pipe"
+                "cat: stdout: Broken pipe",
             ], "", $error);
             throw new UserException("CSV handling failed. $error");
         }

@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3493111a6115a6dc7bad429a72537fa",
+    "content-hash": "f7fbfa2c8811eaf86400f9efc6e19cc0",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -237,7 +237,61 @@
             "keywords": [
                 "gooddata"
             ],
-            "time": "2018-08-23 19:52:03"
+            "time": "2018-08-23T19:52:03+00:00"
+        },
+        {
+            "name": "keboola/php-component",
+            "version": "4.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-component.git",
+                "reference": "57880731858a7bc46d9913614fcfe6e36b3dc763"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-component/zipball/57880731858a7bc46d9913614fcfe6e36b3dc763",
+                "reference": "57880731858a7bc46d9913614fcfe6e36b3dc763",
+                "shasum": ""
+            },
+            "require": {
+                "monolog/monolog": "^1.23",
+                "php": "^7.1",
+                "symfony/config": "^4.0",
+                "symfony/filesystem": "^4.0",
+                "symfony/finder": "^4.0",
+                "symfony/serializer": "^4.0"
+            },
+            "require-dev": {
+                "devedge/sami-github": "^1.0",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "keboola/coding-standard": "^4.0",
+                "keboola/php-temp": "^1.0",
+                "phpstan/phpstan-shim": "^0.9.1",
+                "phpunit/phpunit": "^7.1"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\Component\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Helper classes for developing Keboola PHP components",
+            "keywords": [
+                "component",
+                "docker",
+                "keboola"
+            ],
+            "time": "2018-05-21T09:31:18+00:00"
         },
         {
             "name": "keboola/php-temp",
@@ -638,6 +692,69 @@
             "time": "2016-10-10T12:19:37+00:00"
         },
         {
+            "name": "symfony/config",
+            "version": "v4.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/config.git",
+                "reference": "c868972ac26e4e19860ce11b300bb74145246ff9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/config/zipball/c868972ac26e4e19860ce11b300bb74145246ff9",
+                "reference": "c868972ac26e4e19860ce11b300bb74145246ff9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/filesystem": "~3.4|~4.0",
+                "symfony/polyfill-ctype": "~1.8"
+            },
+            "conflict": {
+                "symfony/finder": "<3.4"
+            },
+            "require-dev": {
+                "symfony/dependency-injection": "~3.4|~4.0",
+                "symfony/event-dispatcher": "~3.4|~4.0",
+                "symfony/finder": "~3.4|~4.0",
+                "symfony/yaml": "~3.4|~4.0"
+            },
+            "suggest": {
+                "symfony/yaml": "To use the yaml reference dumper"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Config\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Config Component",
+            "homepage": "https://symfony.com",
+            "time": "2018-07-26T11:24:31+00:00"
+        },
+        {
             "name": "symfony/filesystem",
             "version": "v4.1.3",
             "source": {
@@ -684,6 +801,55 @@
                 }
             ],
             "description": "Symfony Filesystem Component",
+            "homepage": "https://symfony.com",
+            "time": "2018-07-26T11:24:31+00:00"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "v4.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/finder.git",
+                "reference": "e162f1df3102d0b7472805a5a9d5db9fcf0a8068"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/e162f1df3102d0b7472805a5a9d5db9fcf0a8068",
+                "reference": "e162f1df3102d0b7472805a5a9d5db9fcf0a8068",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Finder\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
             "time": "2018-07-26T11:24:31+00:00"
         },

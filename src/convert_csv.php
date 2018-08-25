@@ -1,15 +1,14 @@
 <?php
-/**
- * @package gooddata-writer
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 /**
  * Gets csv and convert to GoodData load
  * Arguments:
  * -h names of columns to header separated by comma
  * -t orders of time columns separated by comma
  */
+
 date_default_timezone_set('UTC');
 
 $fh = fopen('php://stdin', 'r');
