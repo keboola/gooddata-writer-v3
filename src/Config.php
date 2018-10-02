@@ -25,7 +25,7 @@ class Config extends BaseConfig
 
     public function getProjectBackendUrl(): string
     {
-        return $this->getValue(['parameters', 'project', 'backendUrl'], null);
+        return $this->getValue(['parameters', 'project', 'backendUrl'], '');
     }
 
     public function getTables(): array
