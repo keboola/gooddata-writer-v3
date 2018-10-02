@@ -100,13 +100,16 @@ class App
                 $config->getTables()[$tableId],
                 $projectDefinition
             );
-
+            $fileName = $table['source']; // aka $tableId
+            if (isset($table['destination'])) {
+                $fileName = $table['destination'];
+            }
             $tmpDir = $this->temp->getTmpFolder() . '/' . $tableId;
             mkdir($tmpDir);
             $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
 
             $upload->createSingleLoadManifest($tableDef);
-            $upload->createCsv("$inputPath/{$table['destination']}", $tableDef);
+            $upload->createCsv("$inputPath/{$fileName}", $tableDef);
             $upload->upload($config->getProjectPid(), $tableId);
         }
     }
