@@ -101,8 +101,7 @@
     "input": {
       "tables": [
         {
-          "source": "out.c-main.categories",
-          "destination": "out.c_main.categories.csv"
+          "source": "out.c-main.categories"
         },
         {
           "source": "out.c-main.products",
