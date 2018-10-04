@@ -79,9 +79,13 @@ class App
         $definitions = [];
         foreach ($config->getInputTables() as $table) {
             $tableId = $table['source'];
+            $tableDefinition = $config->getTables()[$tableId];
+            if (!$this->isTableEnabled($tableDefinition)) {
+                continue;
+            }
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $this->getEnabledTables($config)[$tableId],
+                $tableDefinition,
                 $projectDefinition
             );
 
@@ -95,9 +99,13 @@ class App
     {
         foreach ($config->getInputTables() as $table) {
             $tableId = $table['source'];
+            $tableDefinition = $config->getTables()[$tableId];
+            if (!$this->isTableEnabled($tableDefinition)) {
+                continue;
+            }
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $this->getEnabledTables($config)[$tableId],
+                $tableDefinition,
                 $projectDefinition
             );
             $fileName = $table['source']; // aka $tableId
@@ -114,10 +122,15 @@ class App
         }
     }
 
+    protected function isTableEnabled(array $tableDefinition) : boolean
+    {
+        return !isset($tableDefinition['disabled']) || !$tableDefinition['disabled'];
+    }
+
     public function getEnabledTables(Config $config) : array
     {
         return array_filter($config->getTables(), function ($table) {
-            return !isset($table['disabled']) || !$table['disabled'];
+            return $this->isTableEnabled($table);
         });
     }
 
