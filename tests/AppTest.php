@@ -33,6 +33,31 @@ class AppTest extends TestCase
         $this->cleanUpProject(getenv('GD_PID'));
     }
 
+    public function testGetEnabledTables(): void
+    {
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = new ProvisioningClient(
+            getenv('PROVISIONING_URL'),
+            getenv('KBC_TOKEN'),
+            $logger
+        );
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = getenv('GD_PID');
+        $config = new Config($params, new ConfigDefinition());
+        $this->assertCount(3, $app->getEnabledTables($config));
+        $params['parameters']['tables']['out.c-main.categories']['disabled'] = true;
+        $config = new Config($params, new ConfigDefinition());
+        $this->assertCount(2, $app->getEnabledTables($config));
+    }
+
     public function testAppRun(): void
     {
         $logger = new NullLogger();

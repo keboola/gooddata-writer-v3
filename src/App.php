@@ -79,9 +79,13 @@ class App
         $definitions = [];
         foreach ($config->getInputTables() as $table) {
             $tableId = $table['source'];
+            $tableDefinition = $config->getTables()[$tableId];
+            if (!$this->isTableEnabled($tableDefinition)) {
+                continue;
+            }
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $config->getTables()[$tableId],
+                $tableDefinition,
                 $projectDefinition
             );
 
@@ -95,9 +99,13 @@ class App
     {
         foreach ($config->getInputTables() as $table) {
             $tableId = $table['source'];
+            $tableDefinition = $config->getTables()[$tableId];
+            if (!$this->isTableEnabled($tableDefinition)) {
+                continue;
+            }
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $config->getTables()[$tableId],
+                $tableDefinition,
                 $projectDefinition
             );
             $fileName = $table['source']; // aka $tableId
@@ -114,11 +122,23 @@ class App
         }
     }
 
+    protected function isTableEnabled(array $tableDefinition) : bool
+    {
+        return !isset($tableDefinition['disabled']) || !$tableDefinition['disabled'];
+    }
+
+    public function getEnabledTables(Config $config) : array
+    {
+        return array_filter($config->getTables(), function ($table) {
+            return $this->isTableEnabled($table);
+        });
+    }
+
     public function run(Config $config, string $inputPath): void
     {
         $this->checkProjectAccess($config);
         $projectDefinition = [
-            'dataSets' => $config->getTables(),
+            'dataSets' => $this->getEnabledTables($config),
             'dimensions' => $config->getDimensions(),
         ];
 
