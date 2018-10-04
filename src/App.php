@@ -122,7 +122,7 @@ class App
         }
     }
 
-    protected function isTableEnabled(array $tableDefinition) : boolean
+    protected function isTableEnabled(array $tableDefinition) : bool
     {
         return !isset($tableDefinition['disabled']) || !$tableDefinition['disabled'];
     }
