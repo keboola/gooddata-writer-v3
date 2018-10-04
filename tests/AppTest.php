@@ -48,6 +48,9 @@ class AppTest extends TestCase
 
         $app = new App($logger, $temp, $this->gdClient, $provisioning);
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = getenv('GD_PID');
         $config = new Config($params, new ConfigDefinition());
         $this->assertCount(3, $app->getEnabledTables($config));
         $params['parameters']['tables']['out.c-main.categories']['disabled'] = true;
