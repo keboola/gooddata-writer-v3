@@ -10,6 +10,20 @@
       }
     },
     "tables": {
+      "out.c-disabled.table": {
+        "title": "disabled-table",
+        "disabled": true,
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          }
+        }
+      },
       "out.c-main.categories": {
         "title": "categories",
         "columns": {
@@ -100,6 +114,9 @@
   "storage": {
     "input": {
       "tables": [
+        {
+          "source": "out.c-disabled.table"
+        },
         {
           "source": "out.c-main.categories"
         },

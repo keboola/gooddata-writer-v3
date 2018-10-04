@@ -33,6 +33,17 @@ class AppTest extends TestCase
         $this->cleanUpProject(getenv('GD_PID'));
     }
 
+    public function testGetEnabledTables(): void
+    {
+        $app = $this->initApp();
+        $params = $this->initParams();
+        $config = new Config($params, new ConfigDefinition());
+        $this->assertCount(3, $app->getEnabledTables($config));
+        $params['parameters']['tables']['out.c-main.categories']['disabled'] = true;
+        $config = new Config($params, new ConfigDefinition());
+        $this->assertCount(2, $app->getEnabledTables($config));
+    }
+
     public function testAppRun(): void
     {
         $logger = new NullLogger();
