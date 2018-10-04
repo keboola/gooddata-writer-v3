@@ -35,8 +35,19 @@ class AppTest extends TestCase
 
     public function testGetEnabledTables(): void
     {
-        $app = $this->initApp();
-        $params = $this->initParams();
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = new ProvisioningClient(
+            getenv('PROVISIONING_URL'),
+            getenv('KBC_TOKEN'),
+            $logger
+        );
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
         $config = new Config($params, new ConfigDefinition());
         $this->assertCount(3, $app->getEnabledTables($config));
         $params['parameters']['tables']['out.c-main.categories']['disabled'] = true;
