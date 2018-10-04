@@ -81,7 +81,7 @@ class App
             $tableId = $table['source'];
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $config->getTables()[$tableId],
+                $this->getEnabledTables($config)[$tableId],
                 $projectDefinition
             );
 
@@ -97,7 +97,7 @@ class App
             $tableId = $table['source'];
             $tableDef = Model::enhanceDefinition(
                 $tableId,
-                $config->getTables()[$tableId],
+                $this->getEnabledTables($config)[$tableId],
                 $projectDefinition
             );
             $fileName = $table['source']; // aka $tableId
@@ -114,11 +114,18 @@ class App
         }
     }
 
+    public function getEnabledTables(Config $config) : array
+    {
+        return array_filter($config->getTables(), function ($table) {
+            return !isset($table['disabled']) || !$table['disabled'];
+        });
+    }
+
     public function run(Config $config, string $inputPath): void
     {
         $this->checkProjectAccess($config);
         $projectDefinition = [
-            'dataSets' => $config->getTables(),
+            'dataSets' => $this->getEnabledTables($config),
             'dimensions' => $config->getDimensions(),
         ];
 
