@@ -35,6 +35,7 @@ class ConfigDefinition extends BaseConfigDefinition
                     ->children()
                         ->scalarNode('title')->isRequired()->cannotBeEmpty()->end()
                         ->scalarNode('identifier')->end()
+                        ->booleanNode('disabled')->end()
                         ->arrayNode('columns')->isRequired()->useAttributeAsKey('name')
                             ->arrayPrototype()
                                 ->children()
