@@ -72,7 +72,16 @@ class App
         $this->gdClient->getProjectModel()->updateProject($config->getProjectPid(), $projectModel);
     }
 
-    protected function loadMulti(Config $config, array $projectDefinition): void
+    protected function getFilenameForTable(array $table): string
+    {
+        $fileName = $table['source']; // aka $tableId
+        if (isset($table['destination'])) {
+            $fileName = $table['destination'];
+        }
+        return $fileName;
+    }
+
+    protected function loadMulti(Config $config, array $projectDefinition, string $inputPath): void
     {
         $tmpDir = $this->temp->getTmpFolder();
         $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
@@ -90,6 +99,8 @@ class App
             );
 
             $definitions[] = $tableDef;
+            $fileName = $this->getFilenameForTable($table);
+            $upload->createCsv("$inputPath/{$fileName}", $tableDef);
         }
         $upload->createMultiLoadManifest($definitions);
         $upload->upload($config->getProjectPid());
@@ -108,15 +119,13 @@ class App
                 $tableDefinition,
                 $projectDefinition
             );
-            $fileName = $table['source']; // aka $tableId
-            if (isset($table['destination'])) {
-                $fileName = $table['destination'];
-            }
+
             $tmpDir = $this->temp->getTmpFolder() . '/' . $tableId;
             mkdir($tmpDir);
             $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
 
             $upload->createSingleLoadManifest($tableDef);
+            $fileName = $fileName = $this->getFilenameForTable($table);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
             $upload->upload($config->getProjectPid(), $tableId);
         }
@@ -147,7 +156,7 @@ class App
         }
 
         if ($config->getMultiLoad()) {
-            $this->loadMulti($config, $projectDefinition);
+            $this->loadMulti($config, $projectDefinition, $inputPath);
             return;
         }
 
