@@ -58,7 +58,7 @@ class AppTest extends TestCase
         $this->assertCount(2, $app->getEnabledTables($config));
     }
 
-    public function testAppRun(): void
+    public function testAppRunSingle(): void
     {
         $logger = new NullLogger();
 
@@ -73,6 +73,34 @@ class AppTest extends TestCase
 
         $app = new App($logger, $temp, $this->gdClient, $provisioning);
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = getenv('GD_PID');
+
+        $this->assertCount(0, $this->getDataSets(getenv('GD_PID')));
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
+        $this->assertCount(5, $this->getDataSets(getenv('GD_PID')));
+    }
+
+    public function testAppRunMulti(): void
+    {
+        $this->cleanUpProject(getenv('GD_PID'));
+        system('rm -rf ' . sys_get_temp_dir() . '/productdate');
+
+        $logger = new NullLogger();
+
+        $temp = new Temp();
+        $temp->initRunFolder();
+
+        $provisioning = new ProvisioningClient(
+            getenv('PROVISIONING_URL'),
+            getenv('KBC_TOKEN'),
+            $logger
+        );
+
+        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params['parameters']['multiLoad'] = true;
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
