@@ -16,6 +16,9 @@ try {
 } catch (UserException $e) {
     $logger->error($e->getMessage());
     exit(1);
+} catch (\Keboola\GoodData\Exception $e) {
+    $logger->error($e->getMessage());
+    exit(1);
 } catch (\Throwable $e) {
     $logger->critical(
         get_class($e) . ':' . $e->getMessage(),
