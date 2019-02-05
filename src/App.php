@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
@@ -92,6 +93,10 @@ class App
             if (!$this->isTableEnabled($tableDefinition)) {
                 continue;
             }
+
+            // Resort columns according to input mapping
+            $tableDefinition['columns'] = $this->resortColumns($tableId, $table, $tableDefinition);
+
             $tableDef = Model::enhanceDefinition(
                 $tableId,
                 $tableDefinition,
@@ -114,6 +119,10 @@ class App
             if (!$this->isTableEnabled($tableDefinition)) {
                 continue;
             }
+
+            // Resort columns according to input mapping
+            $tableDefinition['columns'] = $this->resortColumns($tableId, $table, $tableDefinition);
+
             $tableDef = Model::enhanceDefinition(
                 $tableId,
                 $tableDefinition,
@@ -129,6 +138,18 @@ class App
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
             $upload->upload($config->getProjectPid(), $tableId);
         }
+    }
+
+    protected function resortColumns(string $tableId, array $inputMapping, array $definition) : array
+    {
+        if (!count($inputMapping['columns'])) {
+            throw new UserException("Columns definition for input mapping table {$tableId} is missing.");
+        }
+        $resortedColumns = [];
+        foreach ($inputMapping['columns'] as $c) {
+            $resortedColumns[$c] = $definition['columns'][$c];
+        }
+        return $resortedColumns;
     }
 
     protected function isTableEnabled(array $tableDefinition) : bool
