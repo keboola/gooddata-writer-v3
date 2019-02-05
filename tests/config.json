@@ -14,13 +14,13 @@
         "title": "disabled-table",
         "disabled": true,
         "columns": {
-          "id": {
-            "title": "id",
-            "type": "CONNECTION_POINT"
-          },
           "name": {
             "title": "name",
             "type": "ATTRIBUTE"
+          },
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
           }
         }
       },
@@ -31,13 +31,13 @@
             "title": "id",
             "type": "CONNECTION_POINT"
           },
-          "name": {
-            "title": "name",
-            "type": "ATTRIBUTE"
-          },
           "order": {
             "title": "order",
             "type": "FACT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
           }
         }
       },
@@ -115,14 +115,17 @@
     "input": {
       "tables": [
         {
-          "source": "out.c-disabled.table"
+          "source": "out.c-disabled.table",
+          "columns": ["id", "name"]
         },
         {
-          "source": "out.c-main.categories"
+          "source": "out.c-main.categories",
+          "columns": ["id", "name", "order"]
         },
         {
           "source": "out.c-main.products",
-          "destination": "out.c_main.products.csv"
+          "destination": "out.c_main.products.csv",
+          "columns": ["id", "name", "price", "productdate", "info", "categories"]
         }
       ]
     }
