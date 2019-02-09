@@ -46,7 +46,7 @@ class Component extends BaseComponent
 
     public function initGoodDataClient(Config $config): Client
     {
-        $gdClient = new Client();
+        $gdClient = new Client($config->getImageParameters()['gooddata_url']);
         $gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
         if ($config->getProjectBackendUrl()) {
             $gdClient->setApiUrl($config->getProjectBackendUrl());
