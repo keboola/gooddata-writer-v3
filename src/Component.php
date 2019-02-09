@@ -7,10 +7,14 @@ namespace Keboola\GoodDataWriter;
 use Keboola\Component\BaseComponent;
 use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
+use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
 
 class Component extends BaseComponent
 {
+    /** @var ProvisioningClient */
+    protected $provisioning;
+
     public function run(): void
     {
         /** @var Config $config */
@@ -32,15 +36,15 @@ class Component extends BaseComponent
         $temp = new Temp();
         $temp->initRunFolder();
 
-        $gdClient = $this->initGoodDataClient($config);
-
-        $provisioning = new ProvisioningClient(
+        $this->provisioning = new ProvisioningClient(
             $config->getImageParameters()['provisioning_url'],
             getenv('KBC_TOKEN'),
             $this->getLogger()
         );
 
-        $app = new App($this->getLogger(), $temp, $gdClient, $provisioning);
+        $gdClient = $this->initGoodDataClient($config);
+
+        $app = new App($this->getLogger(), $temp, $gdClient, $this->provisioning);
         $app->run($config, "{$this->getDataDir()}/in/tables");
     }
 
@@ -48,12 +52,25 @@ class Component extends BaseComponent
     {
         $gdClient = new Client();
         $gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
+        $gdClient->setLogger($this->getLogger());
         if ($config->getProjectBackendUrl()) {
             $gdClient->setApiUrl($config->getProjectBackendUrl());
             $gdClient->disableCheckDomain();
         }
-        $gdClient->login($config->getUserLogin(), $config->getUserPassword());
-        $gdClient->setLogger($this->getLogger());
+        try {
+            $gdClient->login($config->getUserLogin(), $config->getUserPassword());
+        } catch (Exception $e) {
+            if ($e->getCode() !== 403) {
+                throw $e;
+            }
+
+            // Provisioning does not add user to the project on its creation, do it now.
+            $this->provisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
+            $this->getLogger()->debug("Service account for data loads ({$config->getUserLogin()}) added to "
+                . "the project using GoodData Provisioning");
+            $gdClient->login($config->getUserLogin(), $config->getUserPassword());
+        }
+
         return $gdClient;
     }
 

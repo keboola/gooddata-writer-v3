@@ -6,7 +6,6 @@ namespace Keboola\GoodDataWriter;
 
 use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
-use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
 use Psr\Log\LoggerInterface;
 
@@ -31,25 +30,6 @@ class App
         $this->temp = $temp;
         $this->gdClient = $gdClient;
         $this->gdProvisioning = $gdProvisioning;
-    }
-
-    public function checkProjectAccess(Config $config): bool
-    {
-        try {
-            $this->gdClient->get("/gdc/projects/{$config->getProjectPid()}");
-        } catch (Exception $e) {
-            if ($e->getCode() !== 403) {
-                throw $e;
-            }
-
-            if (!getenv('KBC_TOKEN')) {
-                throw new \Exception('KBC Token is missing from the environment');
-            }
-            $this->gdProvisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
-            $this->logger->debug("Service account for data loads ({$config->getUserLogin()}) added to "
-                . "the project using GoodData Provisioning");
-        }
-        return true;
     }
 
     protected function updateModel(Config $config, array $projectDefinition): void
@@ -166,7 +146,6 @@ class App
 
     public function run(Config $config, string $inputPath): void
     {
-        $this->checkProjectAccess($config);
         $projectDefinition = [
             'dataSets' => $this->getEnabledTables($config),
             'dimensions' => $config->getDimensions(),
