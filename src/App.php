@@ -82,20 +82,26 @@ class App
         return $fileName;
     }
 
+    public function enhanceTableDefinitionFromMapping(string $tableId, array $mapping, array $def): array
+    {
+        $def['columns'] = $this->resortColumns($tableId, $mapping, $def);
+        $def['incremental'] = !empty($mapping['changed_since']);
+        return $def;
+    }
+
     protected function loadMulti(Config $config, array $projectDefinition, string $inputPath): void
     {
         $tmpDir = $this->temp->getTmpFolder();
         $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
         $definitions = [];
-        foreach ($config->getInputTables() as $table) {
-            $tableId = $table['source'];
+        foreach ($config->getInputTables() as $mapping) {
+            $tableId = $mapping['source'];
             $tableDefinition = $config->getTables()[$tableId];
             if (!$this->isTableEnabled($tableDefinition)) {
                 continue;
             }
 
-            // Resort columns according to input mapping
-            $tableDefinition['columns'] = $this->resortColumns($tableId, $table, $tableDefinition);
+            $tableDefinition = $this->enhanceTableDefinitionFromMapping($tableId, $mapping, $tableDefinition);
 
             $tableDef = Model::enhanceDefinition(
                 $tableId,
@@ -104,7 +110,7 @@ class App
             );
 
             $definitions[] = $tableDef;
-            $fileName = $this->getFilenameForTable($table);
+            $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
         }
         $upload->createMultiLoadManifest($definitions);
@@ -113,15 +119,14 @@ class App
 
     protected function loadSingle(Config $config, array $projectDefinition, string $inputPath): void
     {
-        foreach ($config->getInputTables() as $table) {
-            $tableId = $table['source'];
+        foreach ($config->getInputTables() as $mapping) {
+            $tableId = $mapping['source'];
             $tableDefinition = $config->getTables()[$tableId];
             if (!$this->isTableEnabled($tableDefinition)) {
                 continue;
             }
 
-            // Resort columns according to input mapping
-            $tableDefinition['columns'] = $this->resortColumns($tableId, $table, $tableDefinition);
+            $tableDefinition = $this->enhanceTableDefinitionFromMapping($tableId, $mapping, $tableDefinition);
 
             $tableDef = Model::enhanceDefinition(
                 $tableId,
@@ -134,13 +139,13 @@ class App
             $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
 
             $upload->createSingleLoadManifest($tableDef);
-            $fileName = $fileName = $this->getFilenameForTable($table);
+            $fileName = $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
             $upload->upload($config->getProjectPid(), $tableId);
         }
     }
 
-    protected function resortColumns(string $tableId, array $inputMapping, array $definition) : array
+    public function resortColumns(string $tableId, array $inputMapping, array $definition) : array
     {
         if (!count($inputMapping['columns'])) {
             throw new UserException("Columns definition for input mapping table {$tableId} is missing.");
