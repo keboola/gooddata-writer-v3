@@ -33,7 +33,7 @@ class AppTest extends TestCase
         $this->cleanUpProject(getenv('GD_PID'));
     }
 
-    public function testGetEnabledTables(): void
+    protected function initApp(): App
     {
         $logger = new NullLogger();
 
@@ -46,7 +46,12 @@ class AppTest extends TestCase
             $logger
         );
 
-        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        return new App($logger, $temp, $this->gdClient, $provisioning);
+    }
+
+    public function testGetEnabledTables(): void
+    {
+        $app = $this->initApp();
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
@@ -58,20 +63,35 @@ class AppTest extends TestCase
         $this->assertCount(2, $app->getEnabledTables($config));
     }
 
+    public function testResortColumns(): void
+    {
+        $app = $this->initApp();
+        $this->assertEquals(
+            ['c1' => [], 'c2' => [], 'c3' => []],
+            $app->resortColumns(
+                'tableId',
+                ['columns' => ['c1', 'c2', 'c3']],
+                ['columns' => ['c3' => [], 'c1' => [], 'c2' => []]]
+            )
+        );
+    }
+
+    public function testEnhanceTableDefinitionFromMapping(): void
+    {
+        $app = $this->initApp();
+        $this->assertEquals(
+            ['columns' => ['c1' => [], 'c2' => [], 'c3' => []], 'incremental' => true],
+            $app->enhanceTableDefinitionFromMapping(
+                'tableId',
+                ['columns' => ['c1', 'c2', 'c3'], 'changed_since' => 'yesterday'],
+                ['columns' => ['c3' => [], 'c1' => [], 'c2' => []]]
+            )
+        );
+    }
+
     public function testAppRunSingle(): void
     {
-        $logger = new NullLogger();
-
-        $temp = new Temp();
-        $temp->initRunFolder();
-
-        $provisioning = new ProvisioningClient(
-            getenv('PROVISIONING_URL'),
-            getenv('KBC_TOKEN'),
-            $logger
-        );
-
-        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $app = $this->initApp();
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
@@ -87,18 +107,7 @@ class AppTest extends TestCase
         $this->cleanUpProject(getenv('GD_PID'));
         system('rm -rf ' . sys_get_temp_dir() . '/productdate');
 
-        $logger = new NullLogger();
-
-        $temp = new Temp();
-        $temp->initRunFolder();
-
-        $provisioning = new ProvisioningClient(
-            getenv('PROVISIONING_URL'),
-            getenv('KBC_TOKEN'),
-            $logger
-        );
-
-        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $app = $this->initApp();
         $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['multiLoad'] = true;
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
