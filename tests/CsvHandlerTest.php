@@ -7,7 +7,6 @@ namespace Keboola\GoodDataWriter\Test;
 use Keboola\GoodData\Identifiers;
 use Keboola\GoodDataWriter\CsvHandler;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 class CsvHandlerTest extends TestCase
 {
