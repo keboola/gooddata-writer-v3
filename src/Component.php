@@ -11,36 +11,47 @@ use Keboola\Temp\Temp;
 
 class Component extends BaseComponent
 {
-    public function run(): void
+    protected function initConfig(): Config
     {
         /** @var Config $config */
         $config = $this->getConfig();
 
+        if (!isset($config->getImageParameters()['provisioning_url'])) {
+            throw new \Exception('Provisioning url is missing from image parameters');
+        }
+
+        return $config;
+    }
+
+    protected function initApp(Config $config): App
+    {
+        $gdClient = $this->initGoodDataClient($config);
+
+        $provisioning = new ProvisioningClient(
+            $config->getImageParameters()['provisioning_url'],
+            (string) getenv('KBC_TOKEN'),
+            $this->getLogger()
+        );
+
+        return new App($this->getLogger(), new Temp(), $gdClient, $provisioning);
+    }
+
+    public function run(): void
+    {
+        $config = $this->initConfig();
+
         if (!count($config->getInputTables())) {
             throw new UserException('There are no tables on input');
         }
+
         $configTables = $config->getTables();
         foreach ($config->getInputTables() as $table) {
             if (!isset($configTables[$table['source']])) {
                 throw new UserException("Table {$table['source']} is not configured");
             }
         }
-        if (!isset($config->getImageParameters()['provisioning_url'])) {
-            throw new \Exception('Provisioning url is missing from image parameters');
-        }
 
-        $temp = new Temp();
-        $temp->initRunFolder();
-
-        $gdClient = $this->initGoodDataClient($config);
-
-        $provisioning = new ProvisioningClient(
-            $config->getImageParameters()['provisioning_url'],
-            getenv('KBC_TOKEN'),
-            $this->getLogger()
-        );
-
-        $app = new App($this->getLogger(), $temp, $gdClient, $provisioning);
+        $app = $this->initApp($config);
         $app->run($config, "{$this->getDataDir()}/in/tables");
     }
 

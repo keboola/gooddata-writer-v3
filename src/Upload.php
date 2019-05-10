@@ -77,7 +77,7 @@ class Upload
         // Retry three times if necessary (sometimes it fails on GD maintenance)
         $repeat = 1;
         $uploadUrl = $webDav->getUrl() . $folderName . '/upload.zip';
-        $packageName = $tableId ? "table $tableId" : "multi-load";
+        $packageName = $tableId ? "table $tableId" : 'multi-load';
         do {
             $webDav->uploadZip($this->files, $webDav->getUrl() . $folderName);
             if ($webDav->fileExists($uploadUrl)) {

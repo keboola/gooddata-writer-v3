@@ -29,7 +29,7 @@ class CsvHandler
         $csvHeaders = [];
         foreach ($columns as $columnName => $column) {
             $csvHeaders[] = $columnName;
-            if (isset($column['type']) && $column['type'] == 'DATE' && !empty($column['includeTime'])) {
+            if (isset($column['type']) && $column['type'] === 'DATE' && !empty($column['includeTime'])) {
                 $csvHeaders[] = $columnName . '_tm';
                 $csvHeaders[] = $columnName . '_id';
             }
@@ -47,7 +47,7 @@ class CsvHandler
         $timeColumns = [];
         $i = 1;
         foreach ($columns as $column) {
-            if (isset($column['type']) && $column['type'] == 'DATE' && !empty($column['includeTime'])) {
+            if (isset($column['type']) && $column['type'] === 'DATE' && !empty($column['includeTime'])) {
                 $timeColumns[] = $i;
             }
             $i++;
@@ -76,18 +76,19 @@ class CsvHandler
     public function convert(string $inFile, string $outFile, array $columns): array
     {
         $command = "({$this->getReadFileCommand($columns, $inFile)}) > $outFile";
-        $process = new Process($command);
+        $process = Process::fromShellCommandline($command);
         $process->setTimeout(null);
+        $process->setIdleTimeout(null);
         $process->run();
         $error = $process->getErrorOutput();
         if ($error) {
             $error = str_replace([
                 "\ngzip: stdin: unexpected end of file\n",
-                "gzip: (stdin): unexpected end of file",
-                "tail: write error: Broken pipe",
-                "tail: write error",
-                "cat: stdout: Broken pipe",
-            ], "", $error);
+                'gzip: (stdin): unexpected end of file',
+                'tail: write error: Broken pipe',
+                'tail: write error',
+                'cat: stdout: Broken pipe',
+            ], '', $error);
             throw new UserException("CSV handling failed. $error");
         }
         return ['file' => $outFile, 'command' => ['c' => $command, 'outputSize' => filesize($outFile)]];

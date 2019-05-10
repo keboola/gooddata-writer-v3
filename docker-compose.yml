@@ -3,7 +3,9 @@ version: "2"
 services:
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: keboola/gooddata-writer
     tty: true
     command: bash
@@ -11,9 +13,7 @@ services:
       - ./:/code
 
   tests:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: keboola/gooddata-writer
     command: composer build
     volumes:
       - ./:/code
@@ -26,9 +26,7 @@ services:
       - PROVISIONING_URL
 
   ci-tests:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: keboola/gooddata-writer
     command: composer build
     environment:
       - GD_PID

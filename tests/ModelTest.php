@@ -49,7 +49,7 @@ class ModelTest extends TestCase
             'type' => 'ATTRIBUTE',
         ];
         $this->labelColDef = [
-            'title' => "l" . uniqid(),
+            'title' => 'l' . uniqid(),
             'reference' => 'attr',
             'type' => 'HYPERLINK',
         ];

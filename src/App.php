@@ -47,7 +47,7 @@ class App
             }
             $this->gdProvisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
             $this->logger->debug("Service account for data loads ({$config->getUserLogin()}) added to "
-                . "the project using GoodData Provisioning");
+                . 'the project using GoodData Provisioning');
         }
         return true;
     }
@@ -145,7 +145,7 @@ class App
         }
     }
 
-    public function resortColumns(string $tableId, array $inputMapping, array $definition) : array
+    public function resortColumns(string $tableId, array $inputMapping, array $definition): array
     {
         if (!count($inputMapping['columns'])) {
             throw new UserException("Columns definition for input mapping table {$tableId} is missing.");
@@ -157,12 +157,12 @@ class App
         return $resortedColumns;
     }
 
-    protected function isTableEnabled(array $tableDefinition) : bool
+    protected function isTableEnabled(array $tableDefinition): bool
     {
         return !isset($tableDefinition['disabled']) || !$tableDefinition['disabled'];
     }
 
-    public function getEnabledTables(Config $config) : array
+    public function getEnabledTables(Config $config): array
     {
         return array_filter($config->getTables(), function ($table) {
             return $this->isTableEnabled($table);
