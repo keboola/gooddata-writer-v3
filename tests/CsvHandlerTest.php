@@ -26,6 +26,9 @@ class CsvHandlerTest extends TestCase
     {
         $csvFile = sys_get_temp_dir() . '/' . uniqid() . '.csv';
         $fp = fopen($csvFile, 'w');
+        if ($fp === false) {
+            throw new \Exception('Temp file not exists');
+        }
         for ($i = 0; $i < 25000; $i++) {
             fputcsv($fp, [$i, md5(uniqid()), rand(1, 255), date('Y-m-d H:i:s', rand(1483228800, 1487116800))]);
         }
@@ -64,19 +67,19 @@ class CsvHandlerTest extends TestCase
                 'title' => 'Data',
                 'columns' => [
                     'id' => [
-                        'identifier' => "fact.".Identifiers::getIdentifier($tableId).".id",
-                        'identifierLabel' => "label.".Identifiers::getIdentifier($tableId).".id",
+                        'identifier' => 'fact.'.Identifiers::getIdentifier($tableId).'.id',
+                        'identifierLabel' => 'label.'.Identifiers::getIdentifier($tableId).'.id',
                         'title' => 'Id',
                         'type' => 'CONNECTION_POINT',
                     ],
                     'attr' => [
-                        'identifier' => "attr.".Identifiers::getIdentifier($tableId).".attr",
-                        'identifierLabel' => "label.".Identifiers::getIdentifier($tableId).".col2",
+                        'identifier' => 'attr.'.Identifiers::getIdentifier($tableId).'.attr',
+                        'identifierLabel' => 'label.'.Identifiers::getIdentifier($tableId).'.col2',
                         'title' => 'Attr',
                         'type' => 'ATTRIBUTE',
                     ],
                     'fact' => [
-                        'identifier' => "fact.".Identifiers::getIdentifier($tableId).".fact",
+                        'identifier' => 'fact.'.Identifiers::getIdentifier($tableId).'.fact',
                         'title' => 'Fact',
                         'type' => 'FACT',
                     ],

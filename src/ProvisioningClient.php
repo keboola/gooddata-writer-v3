@@ -39,8 +39,8 @@ class ProvisioningClient
         if ($logger) {
             $this->logger = $logger;
         }
-        $this->loggerFormatter = $loggerFormatter ?: new MessageFormatter("{hostname} {req_header_User-Agent} - [{ts}] "
-            . "\"{method} {resource} {protocol}/{version}\" {code} {res_header_Content-Length}");
+        $this->loggerFormatter = $loggerFormatter ?: new MessageFormatter('{hostname} {req_header_User-Agent} - [{ts}] '
+            . '"{method} {resource} {protocol}/{version}" {code} {res_header_Content-Length}');
         $this->initClient();
     }
 
@@ -56,7 +56,7 @@ class ProvisioningClient
                 ?ResponseInterface $response = null,
                 ?string $error = null
             ) {
-                return $response && $response->getStatusCode() == 503;
+                return $response && $response->getStatusCode() === 503;
             },
             function (int $retries) {
                 return rand(60, 600) * 1000;
@@ -86,7 +86,7 @@ class ProvisioningClient
         ));
 
         $handlerStack->push(Middleware::cookies());
-        if ($this->logger) {
+        if (!empty($this->logger)) {
             $handlerStack->push(Middleware::log($this->logger, $this->loggerFormatter));
         }
         $this->client = new Client(array_merge([

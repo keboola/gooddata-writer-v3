@@ -24,10 +24,10 @@ class Model
             foreach ($def['dataSets'] as $id => $dataSet) {
                 $columns = [];
                 foreach ($dataSet['columns'] as $columnName => $column) {
-                    if ($column['type'] == 'DATE') {
+                    if ($column['type'] === 'DATE') {
                         $column = self::addDateDimensionDefinition($columnName, $column, $id, $def);
                     }
-                    if ($column['type'] == 'REFERENCE') {
+                    if ($column['type'] === 'REFERENCE') {
                         $column = self::addReferenceDefinition($columnName, $column, $id, $def);
                     }
                     $columns[$columnName] = $column;
@@ -36,7 +36,7 @@ class Model
                 $dataSets[$id] = $dataSet;
             }
             foreach ($dataSets as $id => $dataSet) {
-                $result['projectModel']['datasets'][] = self::getDataSetLDM($id, $dataSet);
+                $result['projectModel']['datasets'][] = self::getDataSetLDM((string) $id, $dataSet);
             }
         }
         if (isset($def['dimensions'])) {
@@ -129,7 +129,7 @@ class Model
         foreach ($labels as $attributeId => $labelArray) {
             if (isset($attributes[$attributeId])) {
                 $attributes[$attributeId]['attribute']['labels'] = $labelArray;
-            } elseif ($attributeId == $connectionPoint) {
+            } elseif ($attributeId === $connectionPoint) {
                 $dataSet['anchor']['attribute']['labels'] = $labelArray;
             }
         }
@@ -200,7 +200,8 @@ class Model
             'title' => self::getTitleFromDefinition($name, $column),
             'deprecated' => false,
         ];
-        if ($dataType = self::getColumnDataType($column)) {
+        $dataType = self::getColumnDataType($column);
+        if ($dataType) {
             $fact['dataType'] = $dataType;
         }
         return ['fact' => $fact];
@@ -230,7 +231,7 @@ class Model
             $attribute['sortOrder'] = [
                 'attributeSortOrder' => [
                     'label' => $column['identifierSortLabel'],
-                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] == 'DESC') ? 'DESC' : 'ASC',
+                    'direction' => (!empty($column['sortOrder']) && $column['sortOrder'] === 'DESC') ? 'DESC' : 'ASC',
                 ],
             ];
         }
@@ -242,11 +243,12 @@ class Model
         $label = [
             'identifier' => self::getDefaultLabelId($datasetId, $name, $column),
             'title' => self::getTitleFromDefinition($name, $column),
-            'type' => 'GDC.' . ($column['type'] == 'HYPERLINK' ? 'link' : 'text'),
+            'type' => 'GDC.' . ($column['type'] === 'HYPERLINK' ? 'link' : 'text'),
         ];
-        if ($dataType = self::getColumnDataType($column)) {
+        $dataType = self::getColumnDataType($column);
+        if ($dataType) {
             $label['dataType'] = $dataType;
-        } elseif ($column['type'] == 'HYPERLINK') {
+        } elseif ($column['type'] === 'HYPERLINK') {
             $label['dataType'] = 'VARCHAR(255)';
         }
         return ['label' => $label];
@@ -260,7 +262,7 @@ class Model
     ): array {
         if (empty($column['dateDimension']) || !isset($def['dimensions'][$column['dateDimension']])) {
             throw new UserException("Date column '{$columnName}' of dataset $dataSetId does not have "
-                . "a valid date dimension assigned");
+                . 'a valid date dimension assigned');
         }
         $column['includeTime'] = $def['dimensions'][$column['dateDimension']]['includeTime'];
         $column['template'] = $def['dimensions'][$column['dateDimension']]['template'];
@@ -285,7 +287,7 @@ class Model
             ? $refTableId : $refTableDefinition['title'];
         $column['schemaReferenceIdentifier'] = self::getDatasetIdFromDefinition($refTableId, $refTableDefinition);
         foreach ($refTableDefinition['columns'] as $key => $c) {
-            if (isset($c['type']) && $c['type'] == 'CONNECTION_POINT') {
+            if (isset($c['type']) && $c['type'] === 'CONNECTION_POINT') {
                 $column['reference'] = $key;
                 if (!empty($c['identifierLabel'])) {
                     $column['referenceIdentifier'] = $c['identifierLabel'];
@@ -309,7 +311,7 @@ class Model
     {
         $result = [];
         foreach ($columns as $columnName => $column) {
-            if (isset($column['type']) && $column['type'] != 'IGNORE') {
+            if (isset($column['type']) && $column['type'] !== 'IGNORE') {
                 $result[$columnName] = $column;
             }
         }
@@ -359,7 +361,7 @@ class Model
                 case 'DATE':
                     if (empty($column['identifier'])) {
                         $column['identifier'] = Identifiers::getIdentifier($column['dateDimension']);
-                        if (!empty($column['template']) && strtolower($column['template']) != 'gooddata') {
+                        if (!empty($column['template']) && strtolower($column['template']) !== 'gooddata') {
                             $column['identifier'] .= '.' . strtolower($column['template']);
                         }
                     }
@@ -380,10 +382,10 @@ class Model
         $result = $def;
         $result['columns'] = self::removeIgnoredColumns($def['columns']);
         foreach ($def['columns'] as $columnName => $column) {
-            if ($column['type'] == 'DATE') {
+            if ($column['type'] === 'DATE') {
                 $result['columns'][$columnName]
                     = self::addDateDimensionDefinition($columnName, $column, $tableId, $projectDef);
-            } elseif ($column['type'] == 'REFERENCE') {
+            } elseif ($column['type'] === 'REFERENCE') {
                 $result['columns'][$columnName]
                     = self::addReferenceDefinition($columnName, $column, $tableId, $projectDef);
             }
@@ -398,15 +400,15 @@ class Model
         if (!empty($def['grain'])) {
             $factFound = false;
             foreach ($def['columns'] as $c) {
-                if ($c['type'] == 'CONNECTION_POINT') {
-                    throw new UserException("Grain cannot be created on data set with a connection point");
+                if ($c['type'] === 'CONNECTION_POINT') {
+                    throw new UserException('Grain cannot be created on data set with a connection point');
                 }
-                if ($c['type'] == 'FACT') {
+                if ($c['type'] === 'FACT') {
                     $factFound = true;
                 }
             }
             if (!$factFound) {
-                throw new UserException("Grain cannot be created on data set without facts");
+                throw new UserException('Grain cannot be created on data set without facts');
             }
 
             foreach ($def['grain'] as $g) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter\Test;
 
+use Keboola\Component\Logger;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Exception;
 use Keboola\GoodDataWriter\App;
@@ -12,7 +13,6 @@ use Keboola\GoodDataWriter\ConfigDefinition;
 use Keboola\GoodDataWriter\ProvisioningClient;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
 /**
  * @covers \Keboola\GoodDataWriter\App
@@ -30,19 +30,18 @@ class AppTest extends TestCase
         $this->gdClient = new Client();
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
-        $this->cleanUpProject(getenv('GD_PID'));
+        $this->cleanUpProject((string) getenv('GD_PID'));
     }
 
     protected function initApp(): App
     {
-        $logger = new NullLogger();
+        $logger = new Logger();
 
         $temp = new Temp();
-        $temp->initRunFolder();
 
         $provisioning = new ProvisioningClient(
-            getenv('PROVISIONING_URL'),
-            getenv('KBC_TOKEN'),
+            (string) getenv('PROVISIONING_URL'),
+            (string) getenv('KBC_TOKEN'),
             $logger
         );
 
@@ -52,7 +51,7 @@ class AppTest extends TestCase
     public function testGetEnabledTables(): void
     {
         $app = $this->initApp();
-        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
@@ -92,31 +91,31 @@ class AppTest extends TestCase
     public function testAppRunSingle(): void
     {
         $app = $this->initApp();
-        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
 
-        $this->assertCount(0, $this->getDataSets(getenv('GD_PID')));
+        $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets(getenv('GD_PID')));
+        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
     }
 
     public function testAppRunMulti(): void
     {
-        $this->cleanUpProject(getenv('GD_PID'));
+        $this->cleanUpProject((string) getenv('GD_PID'));
         system('rm -rf ' . sys_get_temp_dir() . '/productdate');
 
         $app = $this->initApp();
-        $params = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
         $params['parameters']['multiLoad'] = true;
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
 
-        $this->assertCount(0, $this->getDataSets(getenv('GD_PID')));
+        $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets(getenv('GD_PID')));
+        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
     }
 
     protected function cleanUpProject(string $pid): void

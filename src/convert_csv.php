@@ -13,9 +13,12 @@ date_default_timezone_set('UTC');
 
 $fh = fopen('php://stdin', 'r');
 $stdErr = fopen('php://stderr', 'w');
+if ($stdErr === false) {
+    throw new \Exception('stderr not accessible');
+}
 $stdOut = fopen('php://stdout', 'w');
-if (!$fh) {
-    fwrite($stdErr, "Error in reading file");
+if ($fh === false) {
+    fwrite($stdErr, 'Error in reading file');
     die(1);
 }
 
@@ -23,6 +26,10 @@ $options = getopt('t::');
 
 $timeColumns = [];
 if (isset($options['t'])) {
+    if (!is_string($options['t'])) {
+        fwrite($stdErr, 'Error in convert_csv options');
+        die(1);
+    }
     $timeColumns = explode(',', $options['t']);
 }
 
@@ -33,6 +40,7 @@ while ($line = fgetcsv($fh, null, ',', '"', chr(0))) {
     $resultLine = '';
 
     foreach ($line as $i => $column) {
+        $i = (int) $i;
         if (in_array($i+1, $timeColumns)) {
             $resultLine .= '"' . $column . '",';
 
@@ -45,6 +53,7 @@ while ($line = fgetcsv($fh, null, ',', '"', chr(0))) {
                     die(1);
                 }
             }
+            $timestamp = (int) $timestamp;
             if ($start > $timestamp) {
                 fwrite($stdErr, sprintf('Error in date column value: "%s" on row %d', $column, $rowNumber));
                 die(1);
@@ -61,6 +70,6 @@ while ($line = fgetcsv($fh, null, ',', '"', chr(0))) {
         }
     }
 
-    print rtrim($resultLine, ",") . "\n";
+    print rtrim($resultLine, ',') . "\n";
     $rowNumber++;
 }
