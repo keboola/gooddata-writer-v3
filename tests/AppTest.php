@@ -6,7 +6,6 @@ namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\Component\Logger;
 use Keboola\GoodData\Client;
-use Keboola\GoodData\Exception;
 use Keboola\GoodDataWriter\App;
 use Keboola\GoodDataWriter\Config;
 use Keboola\GoodDataWriter\ConfigDefinition;
@@ -30,7 +29,7 @@ class AppTest extends TestCase
         $this->gdClient = new Client();
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
-        $this->cleanUpProject((string) getenv('GD_PID'));
+        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
     }
 
     protected function initApp(): App
@@ -103,7 +102,7 @@ class AppTest extends TestCase
 
     public function testAppRunMulti(): void
     {
-        $this->cleanUpProject((string) getenv('GD_PID'));
+        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
         system('rm -rf ' . sys_get_temp_dir() . '/productdate');
 
         $app = $this->initApp();
@@ -116,42 +115,6 @@ class AppTest extends TestCase
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
         $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
-    }
-
-    protected function cleanUpProject(string $pid): void
-    {
-        do {
-            $error = false;
-            $datasets = $this->gdClient->get("/gdc/md/$pid/data/sets");
-            foreach ($datasets['dataSetsInfo']['sets'] as $dataset) {
-                try {
-                    $this->gdClient->getDatasets()->executeMaql(
-                        $pid,
-                        'DROP ALL IN {' . $dataset['meta']['identifier'] . '} CASCADE'
-                    );
-                } catch (Exception $e) {
-                    $error = true;
-                }
-            }
-        } while ($error);
-
-        $folders = $this->gdClient->get("/gdc/md/$pid/query/folders");
-        foreach ($folders['query']['entries'] as $folder) {
-            try {
-                $this->gdClient->getDatasets()->executeMaql(
-                    $pid,
-                    'DROP {'.$folder['identifier'].'};'
-                );
-            } catch (Exception $e) {
-            }
-        }
-        $dimensions = $this->gdClient->get("/gdc/md/$pid/query/dimensions");
-        foreach ($dimensions['query']['entries'] as $folder) {
-            try {
-                $this->gdClient->getDatasets()->executeMaql($pid, 'DROP {'.$folder['identifier'].'};');
-            } catch (Exception $e) {
-            }
-        }
     }
 
     protected function getDataSets(string $pid): array

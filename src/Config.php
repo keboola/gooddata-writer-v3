@@ -47,4 +47,9 @@ class Config extends BaseConfig
     {
         return $this->getValue(['parameters', 'multiLoad'], false);
     }
+
+    public function getBucket(): string
+    {
+        return $this->getValue(['parameters', 'bucket']);
+    }
 }
