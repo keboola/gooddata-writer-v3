@@ -58,12 +58,11 @@ class Component extends BaseComponent
     public function readModelAction(): array
     {
         $config = $this->initConfig();
-        $bucket = $config->getBucket();
-        if (!$bucket) {
+        if (!$config->getBucket()) {
             throw new UserException('Bucket for data tables is not configured in parameters');
         }
         $app = $this->initApp($config);
-        $app->readModel($config->getProjectPid(), $bucket);
+        $app->readModel($this->getManifestManager(), $config, $this->getDataDir());
         return [];
     }
 

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\Component\Logger;
+use Keboola\Component\Manifest\ManifestManager;
 use Keboola\GoodData\Client;
 use Keboola\GoodDataWriter\App;
 use Keboola\GoodDataWriter\Config;
 use Keboola\GoodDataWriter\ConfigDefinition;
 use Keboola\GoodDataWriter\ProvisioningClient;
+use Keboola\StorageApi\Components;
+use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
 
@@ -125,5 +128,59 @@ class AppTest extends TestCase
             $existingDataSets[] = $r['meta']['identifier'];
         }
         return $existingDataSets;
+    }
+
+    public function testReadModel(): void
+    {
+        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
+        system('rm -rf ' . sys_get_temp_dir() . '/productdate');
+
+        $app = $this->initApp();
+        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = getenv('GD_PID');
+
+        $config = new Config($params, new ConfigDefinition());
+
+        $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
+        $app->run($config, __DIR__ . '/tables');
+        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
+
+        unset($params['parameters']['tables']);
+        unset($params['parameters']['dimensions']);
+        $params['parameters']['bucket'] = 'in.c-data';
+        $config = new Config($params, new ConfigDefinition());
+
+        $client = new \Keboola\StorageApi\Client([
+            'url' => getenv('KBC_URL'),
+            'token' => getenv('KBC_TOKEN'),
+        ]);
+        $components = new Components($client);
+        $temp = new Temp();
+        $configId = uniqid();
+        putenv("KBC_CONFIGID=$configId");
+        $components->addConfiguration((new Configuration())
+            ->setComponentId('keboola.gooddata-writer')
+            ->setConfigurationId($configId)
+            ->setName($configId));
+        $app->readModel(new ManifestManager($temp->getTmpFolder()), $config, $temp->getTmpFolder());
+
+        $config = $components->getConfiguration('keboola.gooddata-writer', $configId);
+        $resConfig = $config['configuration'];
+        $this->assertArrayHasKey('dimensions', $resConfig);
+        $this->assertCount(1, $resConfig['dimensions']);
+        $this->assertEquals('productdate', $resConfig['dimensions'][0]['identifier']);
+        $this->assertArrayHasKey('tables', $resConfig);
+        $this->assertCount(3, $resConfig['tables']);
+        $this->assertArrayHasKey('in.c-data.categories', $resConfig['tables']);
+        $this->assertArrayHasKey('in.c-data.products', $resConfig['tables']);
+        $this->assertArrayHasKey('in.c-data.productsgrain', $resConfig['tables']);
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/categories.csv');
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/products.csv');
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/productsgrain.csv');
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/categories.csv.manifest');
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/products.csv.manifest');
+        $this->assertFileExists($temp->getTmpFolder().'/out/tables/productsgrain.csv.manifest');
     }
 }

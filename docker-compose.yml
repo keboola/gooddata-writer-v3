@@ -23,6 +23,7 @@ services:
       - GD_USERNAME
       - GD_PASSWORD
       - KBC_TOKEN
+      - KBC_URL
       - PROVISIONING_URL
 
   ci-tests:
@@ -34,4 +35,5 @@ services:
       - GD_USERNAME
       - GD_PASSWORD
       - KBC_TOKEN
+      - KBC_URL
       - PROVISIONING_URL
