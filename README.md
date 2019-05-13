@@ -113,6 +113,19 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
         - **identifierLabel** - custom GoodData identifier of attribute's default label (makes sense only for type `ATTRIBUTE`)
         - **identifierSortLabel** - custom GoodData identifier of attribute's sort label (makes sense only for type `ATTRIBUTE`)
         
+
+## Read model
+
+Configuration can be read from project model using `read-model` sync action with configuration parameters:
+
+- **user** contains GoodData credentials
+    - **login**
+    - **#password**
+- **project** contains pid of GoodData project
+    - **pid**
+    - **backendUrl** (optional) - custom base url to a white-labelled GoodData
+- **bucket** name of bucket where data tables will be created
+        
 ## Tests
 
 Tests require setup of some env variables. Integration test connects to a GoodData Provisioning instance. You need to provide its url (`PROVISIONING_URL`) and token of a KBC project which will be used for provisioning (`KBC_TOKEN`). Also, you need to provision a GoodData user (`GD_USERNAME` and `GD_PASSWORD`) and two projects (`GD_PID` and `GD_PID_2`).

@@ -23,7 +23,7 @@ class ModelReader
         $this->logger = $logger;
     }
 
-    public function getDefinitionFromLDM(string $pid, string $bucket): array
+    public function getDefinitionFromLDM(string $pid): array
     {
         $ldm = $this->gdClient->getProjectModel()->view($pid);
 
@@ -41,7 +41,6 @@ class ModelReader
                     $timeDimensions[] = substr($dataSet['dataset']['identifier'], 13);
                 } else {
                     $resultDataset = [
-                        'tableId' => $bucket . '.' . Identifiers::getIdentifier($dataSet['dataset']['title']),
                         'identifier' => $dataSet['dataset']['identifier'],
                         'title' => $dataSet['dataset']['title'],
                         'export' => 1,
@@ -113,7 +112,8 @@ class ModelReader
                         $resultDataset['anchorIdentifier'] = $dataSet['dataset']['anchor']['attribute']['identifier'];
                     }
 
-                    $result['dataSets'][] = $resultDataset;
+                    $tableId = Identifiers::getIdentifier($dataSet['dataset']['title']);
+                    $result['dataSets'][$tableId] = $resultDataset;
                 }
             }
         }

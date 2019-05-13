@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
+use Keboola\Component\Manifest\ManifestManager;
+use Keboola\Component\Manifest\ManifestManager\Options\OutTableManifestOptions;
 use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Exception;
@@ -189,9 +191,30 @@ class App
         $this->loadSingle($config, $projectDefinition, $inputPath);
     }
 
-    public function readModel(string $pid, string $bucket): void
+    public function readModel(ManifestManager $manifestManager, Config $config, string $inputPath): void
     {
         $reader = new ModelReader($this->gdClient, $this->logger);
-        $reader->getDefinitionFromLDM($pid, $bucket);
+        $model = $reader->getDefinitionFromLDM($config->getProjectPid());
+
+        $configuration = ['dimensions' => $model['dateDimensions']];
+
+        // Create empty data tables and manifests
+        foreach ($model['dataSets'] as $tableId => $d) {
+            $dataFile = "$inputPath/out/tables/$tableId.csv";
+            $manifestManager->writeTableManifest(
+                "$tableId.csv",
+                (new OutTableManifestOptions())
+                    ->setDestination("{$config->getBucket()}.$tableId")
+            );
+            file_put_contents($dataFile, implode(',', array_keys($d['columns'])));
+            $configuration['tables']["{$config->getBucket()}.$tableId"] = $d;
+        }
+
+        // Update configuration
+        $storage = new ConfigurationStorage(new \Keboola\StorageApi\Client([
+            'url' => getenv('KBC_URL'),
+            'token' => getenv('KBC_TOKEN'),
+        ]));
+        $storage->updateConfiguration((string) getenv('KBC_CONFIGID'), $configuration);
     }
 }
