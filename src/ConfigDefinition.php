@@ -17,6 +17,7 @@ class ConfigDefinition extends BaseConfigDefinition
         $parametersNode->children()
             ->booleanNode('loadOnly')->end()
             ->booleanNode('multiLoad')->end()
+            ->scalarNode('bucket')->end() // Bucket for readModel sync action
             ->arrayNode('user')->isRequired()
                 ->children()
                     ->scalarNode('uid')->end()
@@ -30,7 +31,7 @@ class ConfigDefinition extends BaseConfigDefinition
                     ->scalarNode('backendUrl')->end()
                 ->end()
             ->end()
-            ->arrayNode('tables')->isRequired()->useAttributeAsKey('name')
+            ->arrayNode('tables')->useAttributeAsKey('name')
                 ->normalizeKeys(false)
                 ->arrayPrototype()
                     ->children()

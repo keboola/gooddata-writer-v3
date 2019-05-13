@@ -188,4 +188,10 @@ class App
 
         $this->loadSingle($config, $projectDefinition, $inputPath);
     }
+
+    public function readModel(string $pid, string $bucket): void
+    {
+        $reader = new ModelReader($this->gdClient, $this->logger);
+        $reader->getDefinitionFromLDM($pid, $bucket);
+    }
 }

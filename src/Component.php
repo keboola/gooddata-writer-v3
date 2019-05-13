@@ -55,6 +55,18 @@ class Component extends BaseComponent
         $app->run($config, "{$this->getDataDir()}/in/tables");
     }
 
+    public function readModelAction(): array
+    {
+        $config = $this->initConfig();
+        $bucket = $config->getBucket();
+        if (!$bucket) {
+            throw new UserException('Bucket for data tables is not configured in parameters');
+        }
+        $app = $this->initApp($config);
+        $app->readModel($config->getProjectPid(), $bucket);
+        return [];
+    }
+
     public function initGoodDataClient(Config $config): Client
     {
         $gdClient = new Client($config->getImageParameters()['gooddata_url']);
@@ -75,5 +87,10 @@ class Component extends BaseComponent
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;
+    }
+
+    protected function getSyncActions(): array
+    {
+        return ['readModel' => 'readModelAction'];
     }
 }
