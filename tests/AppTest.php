@@ -147,9 +147,11 @@ class AppTest extends TestCase
         $app->run($config, __DIR__ . '/tables');
         $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
 
+        $configId = uniqid();
         unset($params['parameters']['tables']);
         unset($params['parameters']['dimensions']);
         $params['parameters']['bucket'] = 'in.c-data';
+        $params['parameters']['configurationId'] = $configId;
         $config = new Config($params, new ConfigDefinition());
 
         $client = new \Keboola\StorageApi\Client([
@@ -158,8 +160,6 @@ class AppTest extends TestCase
         ]);
         $components = new Components($client);
         $temp = new Temp();
-        $configId = uniqid();
-        putenv("KBC_CONFIGID=$configId");
         $components->addConfiguration((new Configuration())
             ->setComponentId('keboola.gooddata-writer')
             ->setConfigurationId($configId)
