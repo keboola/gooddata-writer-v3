@@ -215,6 +215,6 @@ class App
             'url' => getenv('KBC_URL'),
             'token' => getenv('KBC_TOKEN'),
         ]));
-        $storage->updateConfiguration((string) getenv('KBC_CONFIGID'), $configuration);
+        $storage->updateConfiguration($config->getConfigurationId(), $configuration);
     }
 }

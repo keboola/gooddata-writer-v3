@@ -52,4 +52,9 @@ class Config extends BaseConfig
     {
         return $this->getValue(['parameters', 'bucket']);
     }
+
+    public function getConfigurationId(): string
+    {
+        return $this->getValue(['parameters', 'configurationId']);
+    }
 }

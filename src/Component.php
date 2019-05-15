@@ -36,7 +36,7 @@ class Component extends BaseComponent
         return new App($this->getLogger(), new Temp(), $gdClient, $provisioning);
     }
 
-    public function run(): void
+    public function execute(): void
     {
         $config = $this->initConfig();
 
@@ -60,6 +60,9 @@ class Component extends BaseComponent
         $config = $this->initConfig();
         if (!$config->getBucket()) {
             throw new UserException('Bucket for data tables is not configured in parameters');
+        }
+        if (!$config->getConfigurationId()) {
+            throw new UserException('ConfigurationId is not configured in parameters');
         }
         $app = $this->initApp($config);
         $app->readModel($this->getManifestManager(), $config, $this->getDataDir());
