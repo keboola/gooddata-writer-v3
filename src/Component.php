@@ -36,7 +36,7 @@ class Component extends BaseComponent
         return new App($this->getLogger(), new Temp(), $gdClient, $provisioning);
     }
 
-    public function execute(): void
+    protected function run(): void
     {
         $config = $this->initConfig();
 
@@ -55,7 +55,7 @@ class Component extends BaseComponent
         $app->run($config, "{$this->getDataDir()}/in/tables");
     }
 
-    public function readModelAction(): array
+    protected function readModelAction(): array
     {
         $config = $this->initConfig();
         if (!$config->getBucket()) {
@@ -69,7 +69,7 @@ class Component extends BaseComponent
         return [];
     }
 
-    public function initGoodDataClient(Config $config): Client
+    protected function initGoodDataClient(Config $config): Client
     {
         $gdClient = new Client($config->getImageParameters()['gooddata_url']);
         $gdClient->setUserAgent('gooddata-writer-v3', getenv('KBC_RUNID'));
