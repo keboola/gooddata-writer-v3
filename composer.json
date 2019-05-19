@@ -15,7 +15,7 @@
     "guzzlehttp/guzzle": "^6.3",
     "keboola/gooddata-php-client": "^3.0",
     "keboola/php-component": "^7.0",
-    "keboola/php-temp": "^2.0",
+    "keboola/php-temp": "^1.0",
     "keboola/storage-api-client": "^10.6",
     "monolog/monolog": "^1.23",
     "symfony/process": "^4.2",
@@ -24,9 +24,10 @@
   "require-dev": {
     "jakub-onderka/php-parallel-lint": "^1.0",
     "keboola/coding-standard": "^8.0",
+    "keboola/datadir-tests": "^2.3",
+    "mockery/mockery": "^1.1",
     "phpstan/phpstan-shim": "^0.11.6",
-    "phpunit/phpunit": "^7.0",
-    "mockery/mockery": "^1.1"
+    "phpunit/phpunit": "^7.0"
   },
   "minimum-stability": "stable",
   "autoload": {
@@ -37,13 +38,16 @@
   "autoload-dev": {
     "psr-4": {
       "Keboola\\GoodDataWriter\\": "src/",
-      "Keboola\\GoodDataWriter\\Test\\": "tests/"
+      "Keboola\\GoodDataWriter\\Test\\": "tests/phpunit/",
+      "Keboola\\GoodDataWriter\\Tests\\Functional\\": "tests/functional/"
     }
   },
   "scripts": {
     "tests-phpunit": "phpunit",
+    "tests-datadir": "phpunit tests/functional",
     "tests": [
-      "@tests-phpunit"
+      "@tests-phpunit",
+      "@tests-datadir"
     ],
 
     "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",

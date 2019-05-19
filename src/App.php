@@ -194,7 +194,7 @@ class App
     public function readModel(ManifestManager $manifestManager, Config $config, string $inputPath): void
     {
         $reader = new ModelReader($this->gdClient, $this->logger);
-        $model = $reader->getDefinitionFromLDM($config->getProjectPid());
+        $model = $reader->getDefinitionFromLDM($config->getBucket(), $config->getProjectPid());
 
         $configuration = ['dimensions' => $model['dateDimensions']];
 

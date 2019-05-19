@@ -1,6 +1,7 @@
 {
   "image_parameters": {
-    "provisioning_url": "url"
+    "provisioning_url": "url",
+    "gooddata_url": "https://secure.gooddata.com"
   },
   "parameters": {
     "dimensions": {
