@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68cf778e331eecabd2e0d587beaa73c9",
+    "content-hash": "30e0ae09b74d81ea47b34f61e66bb944",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -412,33 +412,30 @@
         },
         {
             "name": "keboola/php-temp",
-            "version": "2.0.1",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-temp.git",
-                "reference": "cbdb4dd0dfe548d7bffd74a0e66294981aea49ce"
+                "reference": "2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-temp/zipball/cbdb4dd0dfe548d7bffd74a0e66294981aea49ce",
-                "reference": "cbdb4dd0dfe548d7bffd74a0e66294981aea49ce",
+                "url": "https://api.github.com/repos/keboola/php-temp/zipball/2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b",
+                "reference": "2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1",
-                "symfony/filesystem": ">2.8"
+                "php": ">=5.3.3",
+                "symfony/filesystem": ">2.1.0"
             },
             "require-dev": {
-                "infection/infection": "^0.12",
-                "jakub-onderka/php-parallel-lint": "^1.0",
-                "keboola/coding-standard": "^8.0",
-                "phpstan/phpstan-shim": "^0.11",
-                "phpunit/phpunit": "^7.0|^8.0"
+                "codeclimate/php-test-reporter": "dev-master",
+                "phpunit/phpunit": "^5.2"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Keboola\\Temp\\": "src/"
+                "psr-0": {
+                    "Keboola\\Temp": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -447,16 +444,20 @@
             ],
             "authors": [
                 {
-                    "name": "Keboola",
-                    "email": "devel@keboola.com"
+                    "name": "Miro Cillik",
+                    "email": "miro@keboola.cz"
+                },
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
                 }
             ],
-            "description": "Temp library handles application temporary files",
+            "description": "Temp service - handles application's temporary files",
             "keywords": [
                 "filesystem",
                 "temp"
             ],
-            "time": "2019-04-26T07:18:24+00:00"
+            "time": "2017-11-13T13:02:19+00:00"
         },
         {
             "name": "keboola/storage-api-client",
@@ -1477,6 +1478,46 @@
             ],
             "description": "Keboola coding standard",
             "time": "2019-03-05T12:36:08+00:00"
+        },
+        {
+            "name": "keboola/datadir-tests",
+            "version": "2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/datadir-tests.git",
+                "reference": "5653b5f769bfe9252d6f3304e815e6014033ef81"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/datadir-tests/zipball/5653b5f769bfe9252d6f3304e815e6014033ef81",
+                "reference": "5653b5f769bfe9252d6f3304e815e6014033ef81",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/php-temp": "^1.0",
+                "php": "^7.1",
+                "phpunit/phpunit": "^7.0",
+                "symfony/filesystem": "^4.0",
+                "symfony/finder": "^4.0",
+                "symfony/process": "^4.0"
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "keboola/coding-standard": "^2.0",
+                "phpstan/phpstan-shim": "^0.9.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\DatadirTests\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Tool for functional testing of Keboola Connection components",
+            "time": "2018-11-05T12:33:25+00:00"
         },
         {
             "name": "mockery/mockery",

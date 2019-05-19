@@ -31,6 +31,7 @@ class ProvisioningTest extends TestCase
         $logger = new NullLogger();
 
         $temp = new Temp();
+        $temp->initRunFolder();
 
         $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
         $provisioning->shouldNotReceive('addUserToProject');
@@ -57,6 +58,7 @@ class ProvisioningTest extends TestCase
         $logger = new NullLogger();
 
         $temp = new Temp();
+        $temp->initRunFolder();
 
         $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
         $provisioning->shouldNotReceive('addUserToProject');

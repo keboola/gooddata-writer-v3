@@ -33,7 +33,9 @@ class Component extends BaseComponent
             $this->getLogger()
         );
 
-        return new App($this->getLogger(), new Temp(), $gdClient, $provisioning);
+        $temp = new Temp();
+        $temp->initRunFolder();
+        return new App($this->getLogger(), $temp, $gdClient, $provisioning);
     }
 
     protected function run(): void

@@ -32,14 +32,15 @@ class AppTest extends TestCase
         $this->gdClient = new Client();
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
-        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
     }
 
     protected function initApp(): App
     {
+        system('rm -rf ' . sys_get_temp_dir() . '/productdate');
         $logger = new Logger();
 
         $temp = new Temp();
+        $temp->initRunFolder();
 
         $provisioning = new ProvisioningClient(
             (string) getenv('PROVISIONING_URL'),
@@ -53,7 +54,7 @@ class AppTest extends TestCase
     public function testGetEnabledTables(): void
     {
         $app = $this->initApp();
-        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/../config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
@@ -92,8 +93,9 @@ class AppTest extends TestCase
 
     public function testAppRunSingle(): void
     {
+        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
         $app = $this->initApp();
-        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/../config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
@@ -109,7 +111,7 @@ class AppTest extends TestCase
         system('rm -rf ' . sys_get_temp_dir() . '/productdate');
 
         $app = $this->initApp();
-        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/../config.json'), true);
         $params['parameters']['multiLoad'] = true;
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
@@ -133,10 +135,9 @@ class AppTest extends TestCase
     public function testReadModel(): void
     {
         ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
-        system('rm -rf ' . sys_get_temp_dir() . '/productdate');
 
         $app = $this->initApp();
-        $params = json_decode((string) file_get_contents(__DIR__ . '/config.json'), true);
+        $params = json_decode((string) file_get_contents(__DIR__ . '/../config.json'), true);
         $params['parameters']['user']['login'] = getenv('GD_USERNAME');
         $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
         $params['parameters']['project']['pid'] = getenv('GD_PID');
@@ -160,6 +161,7 @@ class AppTest extends TestCase
         ]);
         $components = new Components($client);
         $temp = new Temp();
+        $temp->initRunFolder();
         $components->addConfiguration((new Configuration())
             ->setComponentId('keboola.gooddata-writer')
             ->setConfigurationId($configId)
