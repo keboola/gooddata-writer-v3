@@ -191,7 +191,7 @@ class App
         $this->loadSingle($config, $projectDefinition, $inputPath);
     }
 
-    public function readModel(ManifestManager $manifestManager, Config $config, string $inputPath): void
+    public function readModel(ManifestManager $manifestManager, Config $config, string $inputPath): array
     {
         $reader = new ModelReader($this->gdClient, $this->logger);
         $model = $reader->getDefinitionFromLDM($config->getBucket(), $config->getProjectPid());
@@ -216,5 +216,6 @@ class App
             'token' => getenv('KBC_TOKEN'),
         ]));
         $storage->updateConfiguration($config->getConfigurationId(), $configuration);
+        return $configuration;
     }
 }

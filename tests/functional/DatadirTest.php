@@ -85,7 +85,159 @@ class DatadirTest extends AbstractDatadirTestCase
         $specification = new DatadirTestSpecification(
             __DIR__ . '/read-model/source/data',
             0,
-            '[]',
+            '{
+    "dimensions": [
+        {
+            "name": "product date",
+            "identifier": "productdate",
+            "includeTime": 1,
+            "template": "GOODDATA",
+            "isExported": 1
+        }
+    ],
+    "tables": {
+        "in.c-gd-model.categories": {
+            "tableId": "in.c-gd-model.categories",
+            "identifier": "dataset.outcmaincategories",
+            "title": "categories",
+            "export": 1,
+            "isExported": 1,
+            "incrementalLoad": 0,
+            "ignoreFilter": null,
+            "columns": {
+                "cp_id": {
+                    "identifier": "attr.outcmaincategories.id",
+                    "title": "id",
+                    "type": "CONNECTION_POINT",
+                    "identifierLabel": "label.outcmaincategories.id",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "a_name": {
+                    "identifier": "attr.outcmaincategories.name",
+                    "title": "name",
+                    "type": "ATTRIBUTE",
+                    "identifierLabel": "label.outcmaincategories.name",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "f_order": {
+                    "identifier": "fact.outcmaincategories.order",
+                    "title": "order",
+                    "type": "FACT",
+                    "dataType": "DECIMAL",
+                    "dataTypeSize": "12,2"
+                }
+            },
+            "grain": []
+        },
+        "in.c-gd-model.products": {
+            "tableId": "in.c-gd-model.products",
+            "identifier": "dataset.outcmainproducts",
+            "title": "products",
+            "export": 1,
+            "isExported": 1,
+            "incrementalLoad": 0,
+            "ignoreFilter": null,
+            "columns": {
+                "cp_id": {
+                    "identifier": "attr.outcmainproducts.id",
+                    "title": "id",
+                    "type": "CONNECTION_POINT",
+                    "identifierLabel": "label.outcmainproducts.id",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "info": {
+                    "identifier": "label.outcmainproducts.id.info",
+                    "title": "info",
+                    "type": "LABEL",
+                    "reference": "cp_id"
+                },
+                "a_name": {
+                    "identifier": "attr.outcmainproducts.name",
+                    "title": "name",
+                    "type": "ATTRIBUTE",
+                    "identifierLabel": "label.outcmainproducts.name",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "f_price": {
+                    "identifier": "fact.outcmainproducts.price",
+                    "title": "price",
+                    "type": "FACT",
+                    "dataType": "DECIMAL",
+                    "dataTypeSize": "12,2"
+                },
+                "datasetoutcmaincategories": {
+                    "type": "REFERENCE",
+                    "schemaReference": "in.c-gd-model.categories"
+                },
+                "productdate": {
+                    "type": "DATE",
+                    "dateDimension": "product date",
+                    "format": "yyyy-MM-dd"
+                }
+            },
+            "grain": []
+        },
+        "in.c-gd-model.productsgrain": {
+            "tableId": "in.c-gd-model.productsgrain",
+            "identifier": "dataset.outcmainproductsgrain",
+            "title": "products-grain",
+            "export": 1,
+            "isExported": 1,
+            "incrementalLoad": 0,
+            "ignoreFilter": null,
+            "columns": {
+                "a_id": {
+                    "identifier": "attr.outcmainproductsgrain.id",
+                    "title": "id",
+                    "type": "ATTRIBUTE",
+                    "identifierLabel": "label.outcmainproductsgrain.id",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "info": {
+                    "identifier": "label.outcmainproductsgrain.id.info",
+                    "title": "info",
+                    "type": "LABEL",
+                    "reference": "a_id"
+                },
+                "a_name": {
+                    "identifier": "attr.outcmainproductsgrain.name",
+                    "title": "name",
+                    "type": "ATTRIBUTE",
+                    "identifierLabel": "label.outcmainproductsgrain.name",
+                    "dataType": "VARCHAR",
+                    "dataTypeSize": "128"
+                },
+                "f_price": {
+                    "identifier": "fact.outcmainproductsgrain.price",
+                    "title": "price",
+                    "type": "FACT",
+                    "dataType": "DECIMAL",
+                    "dataTypeSize": "12,2"
+                },
+                "datasetoutcmaincategories": {
+                    "type": "REFERENCE",
+                    "schemaReference": "in.c-gd-model.categories"
+                },
+                "productdate": {
+                    "type": "DATE",
+                    "dateDimension": "product date",
+                    "format": "yyyy-MM-dd"
+                }
+            },
+            "grain": [
+                "productdate",
+                "a_id",
+                "datasetoutcmaincategories"
+            ],
+            "anchorIdentifier": "attr.outcmainproductsgrain.factsof"
+        }
+    }
+}',
             null,
             __DIR__ . '/read-model/expected/data/out'
         );
