@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\Component\Logger;
-use Keboola\Component\Manifest\ManifestManager;
 use Keboola\GoodData\Client;
 use Keboola\GoodDataWriter\App;
 use Keboola\GoodDataWriter\Config;
@@ -166,10 +165,11 @@ class AppTest extends TestCase
             ->setComponentId('keboola.gooddata-writer')
             ->setConfigurationId($configId)
             ->setName($configId));
-        $app->readModel(new ManifestManager($temp->getTmpFolder()), $config, $temp->getTmpFolder());
+        $app->readModel($config);
 
         $config = $components->getConfiguration('keboola.gooddata-writer', $configId);
-        $resConfig = $config['configuration'];
+        $this->assertArrayHasKey('parameters', $config['configuration']);
+        $resConfig = $config['configuration']['parameters'];
         $this->assertArrayHasKey('dimensions', $resConfig);
         $this->assertCount(1, $resConfig['dimensions']);
         $this->assertEquals('productdate', $resConfig['dimensions'][0]['identifier']);
@@ -178,11 +178,8 @@ class AppTest extends TestCase
         $this->assertArrayHasKey('in.c-data.categories', $resConfig['tables']);
         $this->assertArrayHasKey('in.c-data.products', $resConfig['tables']);
         $this->assertArrayHasKey('in.c-data.productsgrain', $resConfig['tables']);
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/categories.csv');
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/products.csv');
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/productsgrain.csv');
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/categories.csv.manifest');
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/products.csv.manifest');
-        $this->assertFileExists($temp->getTmpFolder().'/out/tables/productsgrain.csv.manifest');
+
+        $components->deleteConfiguration('keboola.gooddata-writer', $configId);
+        $client->dropBucket('in.c-data', ['force' => true]);
     }
 }

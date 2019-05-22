@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
-use Keboola\Component\Manifest\ManifestManager;
-use Keboola\Component\Manifest\ManifestManager\Options\OutTableManifestOptions;
 use Keboola\Component\UserException;
+use Keboola\Csv\CsvFile;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
@@ -191,22 +190,28 @@ class App
         $this->loadSingle($config, $projectDefinition, $inputPath);
     }
 
-    public function readModel(ManifestManager $manifestManager, Config $config, string $inputPath): array
+    public function readModel(Config $config): array
     {
         $reader = new ModelReader($this->gdClient, $this->logger);
         $model = $reader->getDefinitionFromLDM($config->getBucket(), $config->getProjectPid());
 
         $configuration = ['dimensions' => $model['dateDimensions']];
 
-        // Create empty data tables and manifests
+        $storageClient = new \Keboola\StorageApi\Client([
+            'url' => getenv('KBC_URL'),
+            'token' => getenv('KBC_TOKEN'),
+        ]);
+
+        // Create data tables
+        if (!$storageClient->bucketExists($config->getBucket())) {
+            $bucketParts = explode('.', $config->getBucket());
+            $storageClient->createBucket(substr($bucketParts[1], 2), $bucketParts[0]);
+        }
         foreach ($model['dataSets'] as $tableId => $d) {
-            $dataFile = "$inputPath/out/tables/$tableId.csv";
-            $manifestManager->writeTableManifest(
-                "$tableId.csv",
-                (new OutTableManifestOptions())
-                    ->setDestination("{$config->getBucket()}.$tableId")
-            );
-            file_put_contents($dataFile, implode(',', array_keys($d['columns'])));
+            $dataFile = "{$this->temp->getTmpFolder()}/$tableId.csv";
+            $csv = new CsvFile($dataFile);
+            $csv->writeRow(array_keys($d['columns']));
+            $storageClient->createTable($config->getBucket(), $tableId, $csv);
             $configuration['tables']["{$config->getBucket()}.$tableId"] = $d;
         }
 
@@ -215,7 +220,7 @@ class App
             'url' => getenv('KBC_URL'),
             'token' => getenv('KBC_TOKEN'),
         ]));
-        $storage->updateConfiguration($config->getConfigurationId(), $configuration);
+        $storage->updateConfiguration($config->getConfigurationId(), ['parameters' => $configuration]);
         return $configuration;
     }
 }
