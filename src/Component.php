@@ -67,7 +67,7 @@ class Component extends BaseComponent
             throw new UserException('ConfigurationId is not configured in parameters');
         }
         $app = $this->initApp($config);
-        return $app->readModel($this->getManifestManager(), $config, $this->getDataDir());
+        return $app->readModel($config);
     }
 
     protected function initGoodDataClient(Config $config): Client

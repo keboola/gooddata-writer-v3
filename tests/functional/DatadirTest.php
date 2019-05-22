@@ -73,10 +73,11 @@ class DatadirTest extends AbstractDatadirTestCase
         $config['parameters']['bucket'] = 'in.c-gd-model';
         $config['parameters']['configurationId'] = $configId;
 
-        $components = new Components(new \Keboola\StorageApi\Client([
+        $storageClient = new \Keboola\StorageApi\Client([
             'url' => getenv('KBC_URL'),
             'token' => getenv('KBC_TOKEN'),
-        ]));
+        ]);
+        $components = new Components($storageClient);
         $components->addConfiguration((new Configuration())
             ->setName($configId)
             ->setComponentId('keboola.gooddata-writer')
@@ -249,11 +250,13 @@ class DatadirTest extends AbstractDatadirTestCase
 
         $res = $components->getConfiguration('keboola.gooddata-writer', $configId);
         $this->assertArrayHasKey('configuration', $res);
-        $this->assertArrayHasKey('dimensions', $res['configuration']);
-        $this->assertCount(1, $res['configuration']['dimensions']);
-        $this->assertArrayHasKey('tables', $res['configuration']);
-        $this->assertCount(3, $res['configuration']['tables']);
+        $this->assertArrayHasKey('parameters', $res['configuration']);
+        $this->assertArrayHasKey('dimensions', $res['configuration']['parameters']);
+        $this->assertCount(1, $res['configuration']['parameters']['dimensions']);
+        $this->assertArrayHasKey('tables', $res['configuration']['parameters']);
+        $this->assertCount(3, $res['configuration']['parameters']['tables']);
 
         $components->deleteConfiguration('keboola.gooddata-writer', $configId);
+        $storageClient->dropBucket('in.c-gd-model', ['force' => true]);
     }
 }
