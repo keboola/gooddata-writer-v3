@@ -178,6 +178,10 @@ class AppTest extends TestCase
         $this->assertArrayHasKey('in.c-data.categories', $resConfig['tables']);
         $this->assertArrayHasKey('in.c-data.products', $resConfig['tables']);
         $this->assertArrayHasKey('in.c-data.productsgrain', $resConfig['tables']);
+        $this->assertArrayHasKey('storage', $config['configuration']);
+        $this->assertArrayHasKey('input', $config['configuration']['storage']);
+        $this->assertArrayHasKey('tables', $config['configuration']['storage']['input']);
+        $this->assertCount(3, $config['configuration']['storage']['input']['tables']);
 
         $components->deleteConfiguration('keboola.gooddata-writer', $configId);
         $client->dropBucket('in.c-data', ['force' => true]);

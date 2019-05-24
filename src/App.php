@@ -207,12 +207,15 @@ class App
             $bucketParts = explode('.', $config->getBucket());
             $storageClient->createBucket(substr($bucketParts[1], 2), $bucketParts[0]);
         }
-        foreach ($model['dataSets'] as $tableId => $d) {
-            $dataFile = "{$this->temp->getTmpFolder()}/$tableId.csv";
+        $mapping = [];
+        foreach ($model['dataSets'] as $tableName => $d) {
+            $dataFile = "{$this->temp->getTmpFolder()}/$tableName.csv";
+            $columns = array_keys($d['columns']);
             $csv = new CsvFile($dataFile);
-            $csv->writeRow(array_keys($d['columns']));
-            $storageClient->createTable($config->getBucket(), $tableId, $csv);
-            $configuration['tables']["{$config->getBucket()}.$tableId"] = $d;
+            $csv->writeRow($columns);
+            $storageClient->createTable($config->getBucket(), $tableName, $csv);
+            $configuration['tables']["{$config->getBucket()}.$tableName"] = $d;
+            $mapping[] = ['columns' => $columns, 'source' => "{$config->getBucket()}.$tableName"];
         }
 
         // Update configuration
@@ -220,7 +223,10 @@ class App
             'url' => getenv('KBC_URL'),
             'token' => getenv('KBC_TOKEN'),
         ]));
-        $storage->updateConfiguration($config->getConfigurationId(), ['parameters' => $configuration]);
+        $storage->updateConfiguration($config->getConfigurationId(), [
+            'parameters' => $configuration,
+            'storage' => ['input' => ['tables' => $mapping]],
+        ]);
         return $configuration;
     }
 }
