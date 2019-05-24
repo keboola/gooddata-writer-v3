@@ -255,6 +255,10 @@ class DatadirTest extends AbstractDatadirTestCase
         $this->assertCount(1, $res['configuration']['parameters']['dimensions']);
         $this->assertArrayHasKey('tables', $res['configuration']['parameters']);
         $this->assertCount(3, $res['configuration']['parameters']['tables']);
+        $this->assertArrayHasKey('storage', $res['configuration']);
+        $this->assertArrayHasKey('input', $res['configuration']['storage']);
+        $this->assertArrayHasKey('tables', $res['configuration']['storage']['input']);
+        $this->assertCount(3, $res['configuration']['storage']['input']['tables']);
 
         $components->deleteConfiguration('keboola.gooddata-writer', $configId);
         $storageClient->dropBucket('in.c-gd-model', ['force' => true]);
