@@ -112,12 +112,12 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
         - **identifier** - custom GoodData identifier of the column  (makes sense only for types `CONNECTION_POINT`, `ATTRIBUTE` and `FACT`)
         - **identifierLabel** - custom GoodData identifier of attribute's default label (makes sense only for type `ATTRIBUTE`)
         - **identifierSortLabel** - custom GoodData identifier of attribute's sort label (makes sense only for type `ATTRIBUTE`)
-        
+
 
 ## Read model
 
 Configuration can be read from project model using `read-model` sync action with configuration parameters:
-
+- **configurationId** id of gooddata writer v3 config id which will be update by read model
 - **user** contains GoodData credentials
     - **login**
     - **#password**
