@@ -116,8 +116,8 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
 
 ## Read model
 
-Configuration can be read from project model using `readModel` sync action(url example https://docker-runner.keboola.com/docker/keboola.gooddata-writer/action/readModel) with configuration parameters:
-- **configurationId** id of gooddata writer v3 config id which will be update by read model
+Configuration can be read from project model using `readModel` sync action (url example https://docker-runner.keboola.com/docker/keboola.gooddata-writer/action/readModel) with configuration parameters:
+- **configurationId** id of GoodData Writer v3 config id which will be updated by reading the model
 - **user** contains GoodData credentials
     - **login**
     - **#password**
