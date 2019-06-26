@@ -44,10 +44,6 @@ class ModelReader
                         'tableId' => $bucket . '.' . Identifiers::getIdentifier($dataSet['dataset']['title']),
                         'identifier' => $dataSet['dataset']['identifier'],
                         'title' => $dataSet['dataset']['title'],
-                        'export' => 1,
-                        'isExported' => 1,
-                        'incrementalLoad' => 0,
-                        'ignoreFilter' => null,
                         'columns' => [],
                         'grain' => [],
                     ];
@@ -130,7 +126,6 @@ class ModelReader
                     'identifier' => $dimension['dateDimension']['name'],
                     'includeTime' => null,
                     'template' => $template,
-                    'isExported' => 1,
                 ];
             }
         }
@@ -261,6 +256,20 @@ class ModelReader
                 $columns[$columnName] = $c;
             }
             $d['columns'] = $columns;
+        }
+
+        // Put names of dimensions to keys
+        $dimensions = [];
+        foreach ($result['dateDimensions'] as $dimension) {
+            $name = $dimension['name'];
+            unset($dimension['name']);
+            $dimensions[$name] = $dimension;
+        }
+        $result['dateDimensions'] = $dimensions;
+
+        // Remove tableId from datasets
+        foreach ($result['dataSets'] as &$dataSet) {
+            unset($dataSet['tableId']);
         }
 
         return $result;

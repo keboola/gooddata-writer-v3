@@ -87,24 +87,17 @@ class DatadirTest extends AbstractDatadirTestCase
             __DIR__ . '/read-model/source/data',
             0,
             '{
-    "dimensions": [
-        {
-            "name": "product date",
+    "dimensions": {
+        "product date": {
             "identifier": "productdate",
             "includeTime": 1,
-            "template": "GOODDATA",
-            "isExported": 1
+            "template": "GOODDATA"
         }
-    ],
+    },
     "tables": {
         "in.c-gd-model.categories": {
-            "tableId": "in.c-gd-model.categories",
             "identifier": "dataset.outcmaincategories",
             "title": "categories",
-            "export": 1,
-            "isExported": 1,
-            "incrementalLoad": 0,
-            "ignoreFilter": null,
             "columns": {
                 "cp_id": {
                     "identifier": "attr.outcmaincategories.id",
@@ -133,13 +126,8 @@ class DatadirTest extends AbstractDatadirTestCase
             "grain": []
         },
         "in.c-gd-model.products": {
-            "tableId": "in.c-gd-model.products",
             "identifier": "dataset.outcmainproducts",
             "title": "products",
-            "export": 1,
-            "isExported": 1,
-            "incrementalLoad": 0,
-            "ignoreFilter": null,
             "columns": {
                 "cp_id": {
                     "identifier": "attr.outcmainproducts.id",
@@ -183,13 +171,8 @@ class DatadirTest extends AbstractDatadirTestCase
             "grain": []
         },
         "in.c-gd-model.productsgrain": {
-            "tableId": "in.c-gd-model.productsgrain",
             "identifier": "dataset.outcmainproductsgrain",
             "title": "products-grain",
-            "export": 1,
-            "isExported": 1,
-            "incrementalLoad": 0,
-            "ignoreFilter": null,
             "columns": {
                 "a_id": {
                     "identifier": "attr.outcmainproductsgrain.id",
