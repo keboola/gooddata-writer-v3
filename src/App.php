@@ -219,6 +219,12 @@ class App
         }
 
         // Update configuration
+        if (count($configuration['tables']) === 0) {
+            $configuration['tables'] = new \stdClass();
+        }
+        if (count($configuration['dimensions']) === 0) {
+            $configuration['dimensions'] = new \stdClass();
+        }
         $storage = new ConfigurationStorage(new \Keboola\StorageApi\Client([
             'url' => getenv('KBC_URL'),
             'token' => getenv('KBC_TOKEN'),
