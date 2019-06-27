@@ -23,7 +23,7 @@ class ConfigurationStorage
         $this->components = new Components($client);
     }
 
-    public function updateConfiguration(string $configId, array $data): void
+    public function updateConfiguration(string $configId, array $data, ?string $description = null): void
     {
         $configuration = new Configuration();
         $configuration
@@ -33,6 +33,9 @@ class ConfigurationStorage
 
         $configuration->setName($configurationData['name']);
         $configuration->setConfiguration(array_replace_recursive($configurationData['configuration'], $data));
+        if ($description) {
+            $configuration->setDescription($description);
+        }
         $this->components->updateConfiguration($configuration);
     }
 }

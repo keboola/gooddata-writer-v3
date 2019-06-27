@@ -53,9 +53,11 @@ class ConfigurationStorageTest extends TestCase
             'dimensions' => [
                 'd1' => ['dd1'],
             ],
-        ]);
+        ], 'description 123');
 
         $result = $components->getConfiguration('keboola.gooddata-writer', $configId);
+        $this->assertArrayHasKey('description', $result);
+        $this->assertEquals('description 123', $result['description']);
         $resConfig = $result['configuration'];
         $this->assertArrayHasKey('project', $resConfig);
         $this->assertArrayHasKey('pid', $resConfig['project']);

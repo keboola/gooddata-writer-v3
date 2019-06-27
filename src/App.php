@@ -195,7 +195,7 @@ class App
         $reader = new ModelReader($this->gdClient, $this->logger);
         $model = $reader->getDefinitionFromLDM($config->getBucket(), $config->getProjectPid());
 
-        $configuration = ['dimensions' => $model['dateDimensions']];
+        $configuration = ['dimensions' => $model['dateDimensions'], 'tables' => []];
 
         $storageClient = new \Keboola\StorageApi\Client([
             'url' => getenv('KBC_URL'),
@@ -232,7 +232,7 @@ class App
         $storage->updateConfiguration($config->getConfigurationId(), [
             'parameters' => $configuration,
             'storage' => ['input' => ['tables' => $mapping]],
-        ]);
+        ], 'Configuration read from GoodData model');
         return $configuration;
     }
 }
