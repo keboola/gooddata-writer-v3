@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter\Test;
 
+use Keboola\Component\Config\BaseConfig;
 use Keboola\Component\Logger;
 use Keboola\GoodData\Client;
 use Keboola\GoodDataWriter\App;
@@ -14,6 +15,7 @@ use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * @covers \Keboola\GoodDataWriter\App
@@ -172,7 +174,7 @@ class AppTest extends TestCase
         $resConfig = $config['configuration']['parameters'];
         $this->assertArrayHasKey('dimensions', $resConfig);
         $this->assertCount(1, $resConfig['dimensions']);
-        $this->assertEquals('productdate', $resConfig['dimensions'][0]['identifier']);
+        $this->assertEquals('productdate', current($resConfig['dimensions'])['identifier']);
         $this->assertArrayHasKey('tables', $resConfig);
         $this->assertCount(3, $resConfig['tables']);
         $this->assertArrayHasKey('in.c-data.categories', $resConfig['tables']);
@@ -182,6 +184,12 @@ class AppTest extends TestCase
         $this->assertArrayHasKey('input', $config['configuration']['storage']);
         $this->assertArrayHasKey('tables', $config['configuration']['storage']['input']);
         $this->assertCount(3, $config['configuration']['storage']['input']['tables']);
+
+        try {
+            $config = new BaseConfig($config, new ConfigDefinition());
+        } catch (InvalidConfigurationException $e) {
+            $this->fail('Check of model read against ConfigDefinition failed');
+        }
 
         $components->deleteConfiguration('keboola.gooddata-writer', $configId);
         $client->dropBucket('in.c-data', ['force' => true]);
