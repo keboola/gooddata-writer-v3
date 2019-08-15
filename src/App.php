@@ -173,14 +173,22 @@ class App
     public function run(Config $config, string $inputPath): void
     {
         $this->checkProjectAccess($config);
-        $projectDefinition = [
-            'dataSets' => $this->getEnabledTables($config),
-            'dimensions' => $config->getDimensions(),
-        ];
 
         if (!$config->getLoadOnly()) {
+            // Send only enabled tables to update model.
+            $projectDefinition = [
+                'dataSets' => $this->getEnabledTables($config),
+                'dimensions' => $config->getDimensions(),
+            ];
             $this->updateModel($config, $projectDefinition);
         }
+
+        // Add all tables including the disabled to the definition. Otherwise creating of data load manifest would not
+        // work for datasets referencing disabled tables.
+        $projectDefinition = [
+            'dataSets' => $config->getTables(),
+            'dimensions' => $config->getDimensions(),
+        ];
 
         if ($config->getMultiLoad()) {
             $this->loadMulti($config, $projectDefinition, $inputPath);
