@@ -44,6 +44,7 @@ class DatadirTest extends AbstractDatadirTestCase
     {
         ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
 
+        // 1.
         // Run
         $config = $this->config;
         $config['action'] = 'run';
@@ -63,9 +64,18 @@ class DatadirTest extends AbstractDatadirTestCase
         $res = $this->gdClient->get('/gdc/md/' . getenv('GD_PID') . '/data/sets');
         $this->assertCount(5, $res['dataSetsInfo']['sets']);
         $this->assertArrayHasKey('lastSuccess', $res['dataSetsInfo']['sets'][0]);
-        // Assert that last data load occured within a minute
+        // Assert that last data load occurred within a minute
         $this->assertTrue(time() < 60 + strtotime($res['dataSetsInfo']['sets'][0]['lastSuccess']));
 
+        // 2.
+        // Run again load data only after disabling of table which is being referenced to
+        $config['parameters']['tables']['out.c-main.categories']['disabled'] = true;
+        $config['parameters']['loadOnly'] = true;
+        file_put_contents($tempDatadir->getTmpFolder() . '/config.json', \GuzzleHttp\json_encode($config));
+        $process = $this->runScript($tempDatadir->getTmpFolder());
+        $this->assertMatchesSpecification($specification, $process, $tempDatadir->getTmpFolder());
+
+        // 3.
         // Read model
         $configId = uniqid();
         $config = $this->config;
