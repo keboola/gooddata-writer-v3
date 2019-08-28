@@ -42,7 +42,7 @@ class Model
         if (isset($def['dimensions'])) {
             foreach ($def['dimensions'] as $name => $dim) {
                 $result['projectModel']['dateDimensions'][] = self::getDateDimensionLDM($name, $dim);
-                if ($dim['includeTime']) {
+                if (!empty($dim['includeTime'])) {
                     $result['projectModel']['datasets'][] = self::getTimeDimensionLDM($name, $dim);
                 }
             }

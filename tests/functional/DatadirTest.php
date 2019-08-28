@@ -62,7 +62,7 @@ class DatadirTest extends AbstractDatadirTestCase
         $this->assertMatchesSpecification($specification, $process, $tempDatadir->getTmpFolder());
 
         $res = $this->gdClient->get('/gdc/md/' . getenv('GD_PID') . '/data/sets');
-        $this->assertCount(5, $res['dataSetsInfo']['sets']);
+        $this->assertCount(6, $res['dataSetsInfo']['sets']);
         $this->assertArrayHasKey('lastSuccess', $res['dataSetsInfo']['sets'][0]);
         // Assert that last data load occurred within a minute
         $this->assertTrue(time() < 60 + strtotime($res['dataSetsInfo']['sets'][0]['lastSuccess']));
@@ -101,6 +101,11 @@ class DatadirTest extends AbstractDatadirTestCase
         "product date": {
             "identifier": "productdate",
             "includeTime": 1,
+            "template": "GOODDATA"
+        },
+        "test date": {
+            "identifier": "testdate",
+            "includeTime": null,
             "template": "GOODDATA"
         }
     },
@@ -245,7 +250,7 @@ class DatadirTest extends AbstractDatadirTestCase
         $this->assertArrayHasKey('configuration', $res);
         $this->assertArrayHasKey('parameters', $res['configuration']);
         $this->assertArrayHasKey('dimensions', $res['configuration']['parameters']);
-        $this->assertCount(1, $res['configuration']['parameters']['dimensions']);
+        $this->assertCount(2, $res['configuration']['parameters']['dimensions']);
         $this->assertArrayHasKey('tables', $res['configuration']['parameters']);
         $this->assertCount(3, $res['configuration']['parameters']['tables']);
         $this->assertArrayHasKey('storage', $res['configuration']);

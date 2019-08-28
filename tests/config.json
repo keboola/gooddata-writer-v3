@@ -8,6 +8,9 @@
       "product date": {
         "includeTime": true,
         "template": "gooddata"
+      },
+      "test date": {
+        "template": "GOODDATA"
       }
     },
     "tables": {

@@ -103,7 +103,7 @@ class AppTest extends TestCase
 
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
+        $this->assertCount(6, $this->getDataSets((string) getenv('GD_PID')));
     }
 
     public function testAppRunMulti(): void
@@ -120,7 +120,7 @@ class AppTest extends TestCase
 
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
+        $this->assertCount(6, $this->getDataSets((string) getenv('GD_PID')));
     }
 
     protected function getDataSets(string $pid): array
@@ -147,7 +147,7 @@ class AppTest extends TestCase
 
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run($config, __DIR__ . '/tables');
-        $this->assertCount(5, $this->getDataSets((string) getenv('GD_PID')));
+        $this->assertCount(6, $this->getDataSets((string) getenv('GD_PID')));
 
         $configId = uniqid();
         unset($params['parameters']['tables']);
@@ -173,7 +173,7 @@ class AppTest extends TestCase
         $this->assertArrayHasKey('parameters', $config['configuration']);
         $resConfig = $config['configuration']['parameters'];
         $this->assertArrayHasKey('dimensions', $resConfig);
-        $this->assertCount(1, $resConfig['dimensions']);
+        $this->assertCount(2, $resConfig['dimensions']);
         $this->assertEquals('productdate', current($resConfig['dimensions'])['identifier']);
         $this->assertArrayHasKey('tables', $resConfig);
         $this->assertCount(3, $resConfig['tables']);
