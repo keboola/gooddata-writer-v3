@@ -42,6 +42,11 @@ class Component extends BaseComponent
     {
         $config = $this->initConfig();
 
+        if ($config->getAsyncAction() === 'readModel') {
+            $this->readModelAction();
+            return;
+        }
+
         if (!count($config->getInputTables())) {
             throw new UserException('There are no tables on input');
         }
@@ -51,11 +56,6 @@ class Component extends BaseComponent
             if (!isset($configTables[$table['source']])) {
                 throw new UserException("Table {$table['source']} is not configured");
             }
-        }
-
-        if ($config->getAsyncAction() === 'readModel') {
-            $this->readModelAction();
-            return;
         }
 
         $app = $this->initApp($config);
