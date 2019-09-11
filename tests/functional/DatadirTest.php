@@ -79,7 +79,7 @@ class DatadirTest extends AbstractDatadirTestCase
         // Read model
         $configId = uniqid();
         $config = $this->config;
-        $config['action'] = 'readModel';
+        $config['parameters']['action'] = 'readModel';
         $config['parameters']['bucket'] = 'in.c-gd-model';
         $config['parameters']['configurationId'] = $configId;
 
@@ -96,147 +96,7 @@ class DatadirTest extends AbstractDatadirTestCase
         $specification = new DatadirTestSpecification(
             __DIR__ . '/read-model/source/data',
             0,
-            '{
-    "dimensions": {
-        "product date": {
-            "identifier": "productdate",
-            "includeTime": 1,
-            "template": "GOODDATA"
-        },
-        "test date": {
-            "identifier": "testdate",
-            "includeTime": null,
-            "template": "GOODDATA"
-        }
-    },
-    "tables": {
-        "in.c-gd-model.categories": {
-            "identifier": "dataset.outcmaincategories",
-            "title": "categories",
-            "columns": {
-                "cp_id": {
-                    "identifier": "attr.outcmaincategories.id",
-                    "title": "id",
-                    "type": "CONNECTION_POINT",
-                    "identifierLabel": "label.outcmaincategories.id",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "a_name": {
-                    "identifier": "attr.outcmaincategories.name",
-                    "title": "name",
-                    "type": "ATTRIBUTE",
-                    "identifierLabel": "label.outcmaincategories.name",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "f_order": {
-                    "identifier": "fact.outcmaincategories.order",
-                    "title": "order",
-                    "type": "FACT",
-                    "dataType": "DECIMAL",
-                    "dataTypeSize": "12,2"
-                }
-            },
-            "grain": []
-        },
-        "in.c-gd-model.products": {
-            "identifier": "dataset.outcmainproducts",
-            "title": "products",
-            "columns": {
-                "cp_id": {
-                    "identifier": "attr.outcmainproducts.id",
-                    "title": "id",
-                    "type": "CONNECTION_POINT",
-                    "identifierLabel": "label.outcmainproducts.id",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "info": {
-                    "identifier": "label.outcmainproducts.id.info",
-                    "title": "info",
-                    "type": "LABEL",
-                    "reference": "cp_id"
-                },
-                "a_name": {
-                    "identifier": "attr.outcmainproducts.name",
-                    "title": "name",
-                    "type": "ATTRIBUTE",
-                    "identifierLabel": "label.outcmainproducts.name",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "f_price": {
-                    "identifier": "fact.outcmainproducts.price",
-                    "title": "price",
-                    "type": "FACT",
-                    "dataType": "DECIMAL",
-                    "dataTypeSize": "12,2"
-                },
-                "datasetoutcmaincategories": {
-                    "type": "REFERENCE",
-                    "schemaReference": "in.c-gd-model.categories"
-                },
-                "productdate": {
-                    "type": "DATE",
-                    "dateDimension": "product date",
-                    "format": "yyyy-MM-dd"
-                }
-            },
-            "grain": []
-        },
-        "in.c-gd-model.productsgrain": {
-            "identifier": "dataset.outcmainproductsgrain",
-            "title": "products-grain",
-            "columns": {
-                "a_id": {
-                    "identifier": "attr.outcmainproductsgrain.id",
-                    "title": "id",
-                    "type": "ATTRIBUTE",
-                    "identifierLabel": "label.outcmainproductsgrain.id",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "info": {
-                    "identifier": "label.outcmainproductsgrain.id.info",
-                    "title": "info",
-                    "type": "LABEL",
-                    "reference": "a_id"
-                },
-                "a_name": {
-                    "identifier": "attr.outcmainproductsgrain.name",
-                    "title": "name",
-                    "type": "ATTRIBUTE",
-                    "identifierLabel": "label.outcmainproductsgrain.name",
-                    "dataType": "VARCHAR",
-                    "dataTypeSize": "128"
-                },
-                "f_price": {
-                    "identifier": "fact.outcmainproductsgrain.price",
-                    "title": "price",
-                    "type": "FACT",
-                    "dataType": "DECIMAL",
-                    "dataTypeSize": "12,2"
-                },
-                "datasetoutcmaincategories": {
-                    "type": "REFERENCE",
-                    "schemaReference": "in.c-gd-model.categories"
-                },
-                "productdate": {
-                    "type": "DATE",
-                    "dateDimension": "product date",
-                    "format": "yyyy-MM-dd"
-                }
-            },
-            "grain": [
-                "productdate",
-                "a_id",
-                "datasetoutcmaincategories"
-            ],
-            "anchorIdentifier": "attr.outcmainproductsgrain.factsof"
-        }
-    }
-}',
+            '',
             null,
             __DIR__ . '/read-model/expected/data/out'
         );

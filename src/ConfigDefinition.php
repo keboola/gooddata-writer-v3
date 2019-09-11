@@ -17,8 +17,9 @@ class ConfigDefinition extends BaseConfigDefinition
         $parametersNode->children()
             ->booleanNode('loadOnly')->end()
             ->booleanNode('multiLoad')->end()
-            ->scalarNode('bucket')->end() // Bucket for readModel sync action
-            ->scalarNode('configurationId')->end() // configurationId for readModel sync action
+            ->scalarNode('action')->end()
+            ->scalarNode('bucket')->end() // Bucket for readModel action
+            ->scalarNode('configurationId')->end() // configurationId for readModel action
             ->arrayNode('user')->isRequired()
                 ->children()
                     ->scalarNode('uid')->end()
