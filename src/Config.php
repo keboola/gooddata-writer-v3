@@ -8,6 +8,11 @@ use Keboola\Component\Config\BaseConfig;
 
 class Config extends BaseConfig
 {
+    public function getAsyncAction(): string
+    {
+        return $this->getValue(['parameters', 'action'], 'run');
+    }
+
     public function getUserLogin(): string
     {
         return $this->getValue(['parameters', 'user', 'login']);

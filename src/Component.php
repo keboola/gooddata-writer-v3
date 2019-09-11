@@ -53,6 +53,11 @@ class Component extends BaseComponent
             }
         }
 
+        if ($config->getAsyncAction() === 'readModel') {
+            $this->readModelAction();
+            return;
+        }
+
         $app = $this->initApp($config);
         $app->run($config, "{$this->getDataDir()}/in/tables");
     }
