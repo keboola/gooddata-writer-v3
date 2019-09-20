@@ -67,6 +67,7 @@ class ConfigDefinition extends BaseConfigDefinition
                 ->end()
             ->end()
             ->arrayNode('dimensions')->useAttributeAsKey('name')
+                ->normalizeKeys(false)
                 ->arrayPrototype()
                     ->children()
                         ->scalarNode('includeTime')->defaultValue(false)->end()
