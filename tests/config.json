@@ -9,7 +9,7 @@
         "includeTime": true,
         "template": "gooddata"
       },
-      "test date": {
+      "test-date": {
         "template": "GOODDATA"
       }
     },
