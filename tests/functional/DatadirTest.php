@@ -52,7 +52,12 @@ class DatadirTest extends AbstractDatadirTestCase
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
             0,
-            '',
+            'Created dimension product date
+Created dimension test-date
+Model updated
+Csv for table out.c-main.categories uploaded
+Csv for table out.c-main.products uploaded
+',
             '',
             __DIR__ . '/run/expected/data/out'
         );
@@ -69,6 +74,14 @@ class DatadirTest extends AbstractDatadirTestCase
 
         // 2.
         // Run again load data only after disabling of table which is being referenced to
+        $specification = new DatadirTestSpecification(
+            __DIR__ . '/run/source/data',
+            0,
+            'Csv for table out.c-main.products uploaded
+',
+            '',
+            __DIR__ . '/run/expected/data/out'
+        );
         $config['parameters']['tables']['out.c-main.categories']['disabled'] = true;
         $config['parameters']['loadOnly'] = true;
         file_put_contents($tempDatadir->getTmpFolder() . '/config.json', \GuzzleHttp\json_encode($config));
@@ -96,7 +109,10 @@ class DatadirTest extends AbstractDatadirTestCase
         $specification = new DatadirTestSpecification(
             __DIR__ . '/read-model/source/data',
             0,
-            '',
+            'Table in.c-gd-model.categories created
+Table in.c-gd-model.products created
+Table in.c-gd-model.productsgrain created
+',
             null,
             __DIR__ . '/read-model/expected/data/out'
         );
