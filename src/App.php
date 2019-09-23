@@ -47,7 +47,7 @@ class App
                 throw new \Exception('KBC Token is missing from the environment');
             }
             $this->gdProvisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
-            $this->logger->debug("Service account for data loads ({$config->getUserLogin()}) added to "
+            $this->logger->info("Service account for data loads ({$config->getUserLogin()}) added to "
                 . 'the project using GoodData Provisioning');
         }
         return true;
@@ -67,11 +67,13 @@ class App
                     'template' => !empty($dimension['template']) ? $dimension['template'] : null,
                     'identifier' => !empty($dimension['identifier']) ? $dimension['identifier'] : null,
                 ]);
+                $this->logger->info("Created dimension $dimensionName");
             }
         }
 
         // Update model
-        $this->gdClient->getProjectModel()->updateProject($config->getProjectPid(), $projectModel);
+        $result = $this->gdClient->getProjectModel()->updateProject($config->getProjectPid(), $projectModel);
+        $this->logger->info('Model updated', $result);
     }
 
     protected function getFilenameForTable(array $table): string
@@ -113,6 +115,7 @@ class App
             $definitions[] = $tableDef;
             $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
+            $this->logger->info("Csv for table $tableId uploaded");
         }
         $upload->createMultiLoadManifest($definitions);
         $upload->upload($config->getProjectPid());
@@ -142,6 +145,7 @@ class App
             $upload->createSingleLoadManifest($tableDef);
             $fileName = $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
+            $this->logger->info("Csv for table $tableId uploaded");
             $upload->upload($config->getProjectPid(), $tableId);
         }
     }
@@ -183,7 +187,8 @@ class App
             $this->updateModel($config, $projectDefinition);
         }
 
-        // Add all tables including the disabled to the definition. Otherwise creating of data load manifest would not
+        // Add all tables including the disabled to the definition.
+        // Otherwise creating of data load manifest would not
         // work for datasets referencing disabled tables.
         $projectDefinition = [
             'dataSets' => $config->getTables(),
@@ -224,6 +229,7 @@ class App
             $storageClient->createTable($config->getBucket(), $tableName, $csv);
             $configuration['tables']["{$config->getBucket()}.$tableName"] = $d;
             $mapping[] = ['columns' => $columns, 'source' => "{$config->getBucket()}.$tableName"];
+            $this->logger->info("Table {$config->getBucket()}.$tableName created");
         }
 
         // Update configuration
