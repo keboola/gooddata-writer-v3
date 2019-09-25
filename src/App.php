@@ -73,7 +73,8 @@ class App
 
         // Update model
         $result = $this->gdClient->getProjectModel()->updateProject($config->getProjectPid(), $projectModel);
-        $this->logger->info('Model updated', $result);
+        $log = !empty($result['description']) ? (array) $result['description'] : [];
+        $this->logger->info('Model updated', $log);
     }
 
     protected function getFilenameForTable(array $table): string

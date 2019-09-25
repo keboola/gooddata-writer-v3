@@ -25,6 +25,8 @@ class AppTest extends TestCase
 {
     /** @var Client  */
     protected $gdClient;
+    /** @var Temp */
+    protected $temp;
 
     public function __construct(?string $name = null, array $data = [], string $dataName = '')
     {
@@ -40,8 +42,8 @@ class AppTest extends TestCase
         system('rm -rf ' . sys_get_temp_dir() . '/productdate');
         $logger = new Logger();
 
-        $temp = new Temp();
-        $temp->initRunFolder();
+        $this->temp = new Temp();
+        $this->temp->initRunFolder();
 
         $provisioning = new ProvisioningClient(
             (string) getenv('PROVISIONING_URL'),
@@ -49,7 +51,7 @@ class AppTest extends TestCase
             $logger
         );
 
-        return new App($logger, $temp, $this->gdClient, $provisioning);
+        return new App($logger, $this->temp, $this->gdClient, $provisioning);
     }
 
     public function testGetEnabledTables(): void
@@ -104,6 +106,15 @@ class AppTest extends TestCase
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
         $this->assertCount(6, $this->getDataSets((string) getenv('GD_PID')));
+
+        // Run again to test update model on empty model change
+        system("rm -rf {$this->temp->getTmpFolder()}/*");
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
+
+        // Run again with loadOnly
+        system("rm -rf {$this->temp->getTmpFolder()}/*");
+        $params['parameters']['loadOnly'] = true;
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
     }
 
     public function testAppRunMulti(): void
@@ -121,6 +132,13 @@ class AppTest extends TestCase
         $this->assertCount(0, $this->getDataSets((string) getenv('GD_PID')));
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
         $this->assertCount(6, $this->getDataSets((string) getenv('GD_PID')));
+
+        // Run again to test update model on empty model change
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
+
+        // Run again with loadOnly
+        $params['parameters']['loadOnly'] = true;
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
     }
 
     protected function getDataSets(string $pid): array
