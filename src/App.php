@@ -49,7 +49,8 @@ class App
             try {
                 $this->gdProvisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                throw new UserException('Access to the project cannot be acquired: ' . (string) $e->getResponse()->getBody());
+                throw new UserException('Access to the project cannot be acquired: '
+                    . (string) $e->getResponse()->getBody());
             }
             $this->logger->info("Service account for data loads ({$config->getUserLogin()}) added to "
                 . 'the project using GoodData Provisioning');
