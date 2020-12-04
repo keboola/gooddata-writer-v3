@@ -20,10 +20,14 @@ try {
     $logger->error($e->getMessage());
     exit(1);
 } catch (\Throwable $e) {
+    $message = $e->getMessage();
+    if ($e instanceof \GuzzleHttp\Exception\ClientException) {
+        $message = $e->getResponse()->getBody()->getContents();
+    }
     $logger->critical(
-        get_class($e) . ':' . $e->getMessage(),
+        get_class($e) . ':' . $message,
         [
-            'errMessage' => $e->getMessage(),
+            'errMessage' => $message,
             'errFile' => $e->getFile(),
             'errLine' => $e->getLine(),
             'errCode' => $e->getCode(),
