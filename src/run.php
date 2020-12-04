@@ -23,6 +23,7 @@ try {
     $logger->critical(
         get_class($e) . ':' . $e->getMessage(),
         [
+            'errMessage' => $e->getMessage(),
             'errFile' => $e->getFile(),
             'errLine' => $e->getLine(),
             'errCode' => $e->getCode(),
