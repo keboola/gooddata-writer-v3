@@ -129,4 +129,33 @@ Configuration can be read from project model with configuration parameters:
         
 ## Tests
 
-Tests require setup of some env variables. Integration test connects to a GoodData Provisioning instance. You need to provide its url (`PROVISIONING_URL`) and token of a KBC project which will be used for provisioning (`KBC_TOKEN`). Also, you need to provision a GoodData user (`GD_USERNAME` and `GD_PASSWORD`) and two projects (`GD_PID` and `GD_PID_2`).
+Tests require setup of some env variables. Integration test connects to a GoodData Provisioning instance. You need to provide its url (`PROVISIONING_URL`) and token of a KBC project which will be used for provisioning (`KBC_TOKEN`). 
+
+Get the php client (`composer install keboola/gooddata-php-client`) and run following php script. 
+
+Find `$gdAdminPassword` for user `gooddata-devel@keboola.com` in Tech 1P. 
+
+Find `$authToken` in <https://keboola.atlassian.net/wiki/spaces/TECH/pages/71434507/GoodData> (devel auth token)
+
+Choose some `$userName` and `$password` for the created user. Save them to Travis as `GD_USERNAME` and `GD_PASSWORD`.
+
+Run the script and save the exported env vars `GD_UID`, `GD_PID` and `GD_PID_2` to Travis.
+
+```php
+<?php
+$c = new \Keboola\GoodData\Client();
+$c->login('gooddata-devel@keboola.com', $gdAdminPassword); 
+
+$uid = $c->getUsers()->createUser($userName, $password, 'keboola-devel', [
+    'firstName' => 'EXGD',
+    'lastName' => 'dev test',
+]);
+$pid1 = $c->getProjects()->createProject('[ci] gooddata-writer-v3 1', $authToken);
+$pid2 = $c->getProjects()->createProject('[ci] gooddata-writer-v3 2', $authToken);
+$c->getProjects()->addUser($pid1, $uid);
+$c->getProjects()->addUser($pid2, $uid);
+
+echo "GD_UID=$uid" . PHP_EOL;
+echo "GD_PID=$pid1" . PHP_EOL;
+echo "GD_PID_2=$pid2" . PHP_EOL;
+```
