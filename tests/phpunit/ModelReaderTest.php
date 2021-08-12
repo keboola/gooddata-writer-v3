@@ -20,7 +20,7 @@ class ModelReaderTest extends TestCase
     {
         parent::__construct($name, $data, $dataName);
 
-        $this->gdClient = new Client();
+        $this->gdClient = new Client('https://keboola-fork-bomb.on.gooddata.com');
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
         ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));

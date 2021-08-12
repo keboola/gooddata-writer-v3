@@ -1,6 +1,6 @@
 {
   "image_parameters": {
-    "gooddata_url": "https://secure.gooddata.com"
+    "gooddata_url": "https://keboola-fork-bomb.on.gooddata.com"
   },
   "parameters": {
     "dimensions": {
