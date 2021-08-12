@@ -33,10 +33,7 @@ class ProvisioningTest extends TestCase
         $temp = new Temp();
         $temp->initRunFolder();
 
-        $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
-        $provisioning->shouldNotReceive('addUserToProject');
-
-        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $app = new App($logger, $temp, $this->gdClient);
 
         $config = new Config([
             'parameters' => [
@@ -47,7 +44,6 @@ class ProvisioningTest extends TestCase
                 ],
                 'tables' => [],
             ],
-            'image_parameters' => ['provisioning_url' => getenv('PROVISIONING_URL')],
         ], new ConfigDefinition());
 
         $this->assertTrue($app->checkProjectAccess($config));
@@ -60,10 +56,7 @@ class ProvisioningTest extends TestCase
         $temp = new Temp();
         $temp->initRunFolder();
 
-        $provisioning = \Mockery::mock('\Keboola\GoodDataWriter\ProvisioningClient');
-        $provisioning->shouldNotReceive('addUserToProject');
-
-        $app = new App($logger, $temp, $this->gdClient, $provisioning);
+        $app = new App($logger, $temp, $this->gdClient);
 
         $config = new Config([
             'parameters' => [
@@ -74,7 +67,6 @@ class ProvisioningTest extends TestCase
                 ],
                 'tables' => [],
             ],
-            'image_parameters' => ['provisioning_url' => getenv('PROVISIONING_URL')],
         ], new ConfigDefinition());
 
         $this->assertTrue($app->checkProjectAccess($config));
