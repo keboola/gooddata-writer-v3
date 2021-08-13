@@ -24,7 +24,6 @@ services:
       - GD_PASSWORD
       - KBC_TOKEN
       - KBC_URL
-      - PROVISIONING_URL
 
   ci-tests:
     image: keboola/gooddata-writer
@@ -36,4 +35,3 @@ services:
       - GD_PASSWORD
       - KBC_TOKEN
       - KBC_URL
-      - PROVISIONING_URL

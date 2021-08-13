@@ -35,7 +35,7 @@ class DatadirTest extends AbstractDatadirTestCase
             'pid' => getenv('GD_PID'),
         ];
 
-        $this->gdClient = new Client('https://secure.gooddata.com');
+        $this->gdClient = new Client('https://keboola-fork-bomb.on.gooddata.com');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
     }
 

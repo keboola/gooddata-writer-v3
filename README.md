@@ -129,7 +129,7 @@ Configuration can be read from project model with configuration parameters:
         
 ## Tests
 
-Tests require setup of some env variables. Integration test connects to a GoodData Provisioning instance. You need to provide its url (`PROVISIONING_URL`) and token of a KBC project which will be used for provisioning (`KBC_TOKEN`). 
+Tests require setup of some env variables. 
 
 Get the php client (`composer install keboola/gooddata-php-client`) and run following php script. 
 

@@ -16,26 +16,15 @@ class Component extends BaseComponent
         /** @var Config $config */
         $config = $this->getConfig();
 
-        if (!isset($config->getImageParameters()['provisioning_url'])) {
-            throw new \Exception('Provisioning url is missing from image parameters');
-        }
-
         return $config;
     }
 
     protected function initApp(Config $config): App
     {
         $gdClient = $this->initGoodDataClient($config);
-
-        $provisioning = new ProvisioningClient(
-            $config->getImageParameters()['provisioning_url'],
-            (string) getenv('KBC_TOKEN'),
-            $this->getLogger()
-        );
-
         $temp = new Temp();
         $temp->initRunFolder();
-        return new App($this->getLogger(), $temp, $gdClient, $provisioning);
+        return new App($this->getLogger(), $temp, $gdClient);
     }
 
     protected function run(): void

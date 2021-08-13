@@ -19,42 +19,20 @@ class App
     protected $temp;
     /** @var  Client */
     protected $gdClient;
-    /** @var ProvisioningClient  */
-    protected $gdProvisioning;
 
     public function __construct(
         LoggerInterface $logger,
         Temp $temp,
-        Client $gdClient,
-        ProvisioningClient $gdProvisioning
+        Client $gdClient
     ) {
         $this->logger = $logger;
         $this->temp = $temp;
         $this->gdClient = $gdClient;
-        $this->gdProvisioning = $gdProvisioning;
     }
 
     public function checkProjectAccess(Config $config): bool
     {
-        try {
-            $this->gdClient->get("/gdc/projects/{$config->getProjectPid()}");
-        } catch (Exception $e) {
-            if ($e->getCode() !== 403) {
-                throw $e;
-            }
-
-            if (!getenv('KBC_TOKEN')) {
-                throw new \Exception('KBC Token is missing from the environment');
-            }
-            try {
-                $this->gdProvisioning->addUserToProject($config->getUserLogin(), $config->getProjectPid());
-            } catch (\GuzzleHttp\Exception\ClientException $e) {
-                throw new UserException('Access to the project cannot be acquired: '
-                    . (string) $e->getResponse()->getBody());
-            }
-            $this->logger->info("Service account for data loads ({$config->getUserLogin()}) added to "
-                . 'the project using GoodData Provisioning');
-        }
+        $this->gdClient->get("/gdc/projects/{$config->getProjectPid()}");
         return true;
     }
 

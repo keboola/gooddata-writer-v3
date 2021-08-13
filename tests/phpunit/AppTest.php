@@ -10,7 +10,6 @@ use Keboola\GoodData\Client;
 use Keboola\GoodDataWriter\App;
 use Keboola\GoodDataWriter\Config;
 use Keboola\GoodDataWriter\ConfigDefinition;
-use Keboola\GoodDataWriter\ProvisioningClient;
 use Keboola\StorageApi\Components;
 use Keboola\StorageApi\Options\Components\Configuration;
 use Keboola\Temp\Temp;
@@ -32,7 +31,7 @@ class AppTest extends TestCase
     {
         parent::__construct($name, $data, $dataName);
 
-        $this->gdClient = new Client();
+        $this->gdClient = new Client('https://keboola-fork-bomb.on.gooddata.com');
         $this->gdClient->setUserAgent('gooddata-writer-v3', 'test');
         $this->gdClient->login(getenv('GD_USERNAME'), getenv('GD_PASSWORD'));
     }
@@ -45,13 +44,7 @@ class AppTest extends TestCase
         $this->temp = new Temp();
         $this->temp->initRunFolder();
 
-        $provisioning = new ProvisioningClient(
-            (string) getenv('PROVISIONING_URL'),
-            (string) getenv('KBC_TOKEN'),
-            $logger
-        );
-
-        return new App($logger, $this->temp, $this->gdClient, $provisioning);
+        return new App($logger, $this->temp, $this->gdClient);
     }
 
     public function testGetEnabledTables(): void
