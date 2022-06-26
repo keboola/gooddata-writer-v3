@@ -159,3 +159,7 @@ echo "GD_UID=$uid" . PHP_EOL;
 echo "GD_PID=$pid1" . PHP_EOL;
 echo "GD_PID_2=$pid2" . PHP_EOL;
 ```
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
