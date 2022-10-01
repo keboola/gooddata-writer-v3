@@ -89,14 +89,14 @@ jobs:
         name: Run tests
         run: |
           docker run \
-              ${{env.APP_IMAGE}} \
-              -e GD_PID \
-              -e GD_PID_2 \
-              -e GD_USERNAME \
-              -e GD_PASSWORD \
-              -e KBC_TOKEN \
-              -e KBC_URL \
-              composer ci
+          -e GD_PID \
+          -e GD_PID_2 \
+          -e GD_USERNAME \
+          -e GD_PASSWORD \
+          -e KBC_TOKEN \
+          -e KBC_URL \
+          ${{env.APP_IMAGE}} \
+          composer ci
 
   tests-in-kbc:
     needs: build
