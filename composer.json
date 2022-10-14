@@ -12,11 +12,11 @@
   ],
   "require": {
     "php": "^7.1",
-    "guzzlehttp/guzzle": "^6.3",
+    "guzzlehttp/guzzle": "^6.5",
     "keboola/gooddata-php-client": "^3.0",
     "keboola/php-component": "^7.0",
     "keboola/php-temp": "^1.0",
-    "keboola/storage-api-client": "^10.6",
+    "keboola/storage-api-client": "^12.12",
     "monolog/monolog": "^1.23",
     "symfony/process": "^4.2",
     "symfony/serializer": "^4.0"

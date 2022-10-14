@@ -7,9 +7,9 @@ namespace Keboola\GoodDataWriter;
 use Keboola\Component\UserException;
 use Keboola\Csv\CsvFile;
 use Keboola\GoodData\Client;
-use Keboola\GoodData\Exception;
 use Keboola\Temp\Temp;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 class App
 {
@@ -218,15 +218,20 @@ class App
 
         // Update configuration
         if (count($configuration['tables']) === 0) {
-            $configuration['tables'] = new \stdClass();
+            $configuration['tables'] = new stdClass();
         }
         if (count($configuration['dimensions']) === 0) {
-            $configuration['dimensions'] = new \stdClass();
+            $configuration['dimensions'] = new stdClass();
         }
-        $storage = new ConfigurationStorage(new \Keboola\StorageApi\Client([
-            'url' => getenv('KBC_URL'),
-            'token' => getenv('KBC_TOKEN'),
-        ]));
+
+        $branchId = null;
+        if (getenv('KBC_BRANCHID')) {
+            $branchId = (string) getenv('KBC_BRANCHID');
+        }
+
+        $storageApiClient = StorageApiClientFactory::getClient($config, $branchId);
+
+        $storage = new ConfigurationStorage($storageApiClient);
         $storage->updateConfiguration($config->getConfigurationId(), [
             'parameters' => $configuration,
             'storage' => ['input' => ['tables' => $mapping]],

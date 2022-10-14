@@ -1,5 +1,4 @@
 # gooddata-writer-v3
-[![Code Climate](https://codeclimate.com/github/keboola/gooddata-writer-v3/badges/gpa.svg)](https://codeclimate.com/github/keboola/gooddata-writer-v3)
 
 GoodData Writer v3 for Keboola Docker Runner
 
