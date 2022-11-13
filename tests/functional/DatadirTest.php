@@ -48,6 +48,7 @@ class DatadirTest extends AbstractDatadirTestCase
         // Run
         $config = $this->config;
         $config['action'] = 'run';
+        $config['parameters']['project']['backendUrl'] = 'https://keboola-fork-bomb.on.gooddata.com/';
 
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
