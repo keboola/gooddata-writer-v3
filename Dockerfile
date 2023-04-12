@@ -1,4 +1,4 @@
-FROM php:7.1
+FROM php:7.4
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update -q \

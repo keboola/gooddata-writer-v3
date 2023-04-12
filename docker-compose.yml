@@ -17,6 +17,7 @@ services:
     command: composer build
     volumes:
       - ./:/code
+      - ./data:/data
     environment:
       - GD_PID
       - GD_PID_2
