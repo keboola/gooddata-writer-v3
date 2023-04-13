@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "768590877cde9246b28fba6b026a5ae5",
+    "content-hash": "e4c8dd641f35e4ee66bbf36b8b14928c",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -431,16 +431,16 @@
         },
         {
             "name": "keboola/gooddata-php-client",
-            "version": "3.0.3",
+            "version": "3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/gooddata-php-client.git",
-                "reference": "db16936344896b5469fdd5a7642113b88cfbbe48"
+                "reference": "32756964e3452d891b9ae8d13b9ac49767c5be35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/db16936344896b5469fdd5a7642113b88cfbbe48",
-                "reference": "db16936344896b5469fdd5a7642113b88cfbbe48",
+                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/32756964e3452d891b9ae8d13b9ac49767c5be35",
+                "reference": "32756964e3452d891b9ae8d13b9ac49767c5be35",
                 "shasum": ""
             },
             "require": {
@@ -448,7 +448,7 @@
                 "guzzlehttp/guzzle": "~6.0",
                 "pear/crypt_gpg": "^1.6",
                 "php": ">=7.1",
-                "psr/log": "~1.0.0",
+                "psr/log": "~1.0|~2|~3",
                 "symfony/process": "^4.0"
             },
             "require-dev": {
@@ -479,7 +479,10 @@
             "keywords": [
                 "gooddata"
             ],
-            "time": "2019-03-20T11:19:35+00:00"
+            "support": {
+                "source": "https://github.com/keboola/gooddata-php-client/tree/3.0.4"
+            },
+            "time": "2023-04-13T08:21:59+00:00"
         },
         {
             "name": "keboola/php-component",
@@ -584,6 +587,61 @@
                 "temp"
             ],
             "time": "2017-11-13T13:02:19+00:00"
+        },
+        {
+            "name": "keboola/retry",
+            "version": "0.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/retry.git",
+                "reference": "e2ce6f343db1167350df2850a4532ad6845a635d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/retry/zipball/e2ce6f343db1167350df2850a4532ad6845a635d",
+                "reference": "e2ce6f343db1167350df2850a4532ad6845a635d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "psr/log": "^1.1|^2|^3"
+            },
+            "replace": {
+                "vkartaviy/retry": "*"
+            },
+            "require-dev": {
+                "keboola/coding-standard": "^7.0",
+                "phpstan/phpstan-shim": "^0.10",
+                "phpunit/phpunit": "7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Retry\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola Dev",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Library for repeatable and retryable operations",
+            "keywords": [
+                "backoff",
+                "proxy",
+                "repeat",
+                "retry"
+            ],
+            "support": {
+                "issues": "https://github.com/keboola/retry/issues",
+                "source": "https://github.com/keboola/retry/tree/0.5.1"
+            },
+            "time": "2022-09-13T10:26:25+00:00"
         },
         {
             "name": "keboola/storage-api-client",
@@ -1107,16 +1165,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.0.2",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/d49695b909c3b7628b6289db5479a1c204601f11",
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
                 "shasum": ""
             },
             "require": {
@@ -1125,7 +1183,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -1140,7 +1198,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "homepage": "https://www.php-fig.org/"
                 }
             ],
             "description": "Common interface for logging libraries",
@@ -1150,7 +1208,10 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10T12:19:37+00:00"
+            "support": {
+                "source": "https://github.com/php-fig/log/tree/1.1.4"
+            },
+            "time": "2021-05-03T11:20:27+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -3676,5 +3737,5 @@
         "php": "^7.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

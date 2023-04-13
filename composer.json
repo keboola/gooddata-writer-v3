@@ -16,6 +16,7 @@
     "keboola/gooddata-php-client": "^3.0",
     "keboola/php-component": "^7.0",
     "keboola/php-temp": "^1.0",
+    "keboola/retry": "^0.5",
     "keboola/storage-api-client": "^12.12",
     "monolog/monolog": "^1.23",
     "symfony/process": "^4.2",

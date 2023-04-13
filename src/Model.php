@@ -371,7 +371,7 @@ class Model
                     }
                     break;
                 case 'IGNORE':
-                    continue;
+                    continue 2;
             }
         }
         return $def;

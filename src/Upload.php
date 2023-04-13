@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter;
 
+use GuzzleHttp\Exception\ClientException;
 use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
 use Keboola\GoodData\Datasets;
 use Keboola\GoodData\Exception;
 use Keboola\GoodData\WebDav;
 use Psr\Log\LoggerInterface;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 
 class Upload
 {
@@ -74,22 +78,18 @@ class Upload
         );
         $webDav->createFolder($folderName);
 
-        // Retry three times if necessary (sometimes it fails on GD maintenance)
-        $repeat = 1;
         $uploadUrl = $webDav->getUrl() . $folderName . '/upload.zip';
         $packageName = $tableId ? "table $tableId" : 'multi-load';
-        do {
-            $webDav->uploadZip($this->files, $webDav->getUrl() . $folderName);
-            if ($webDav->fileExists($uploadUrl)) {
-                $this->logger->debug("Upload package for $packageName transferred to GoodData");
-                break;
-            }
-            if ($repeat >= 5) {
-                throw new UserException("Transfer package for $packageName has not been uploaded to '$uploadUrl'");
-            }
-            $repeat++;
-            $this->logger->warning("Transfer of package for $packageName to GoodData failed, running try #{$repeat}");
-        } while ($repeat <= 5);
+
+        $retryPolicy = new SimpleRetryPolicy(5, [ClientException::class]);
+        $retryProxy = new RetryProxy($retryPolicy, new ExponentialBackOffPolicy(), $this->logger);
+
+        try {
+            $retryProxy->call([$webDav, 'uploadZip'], [$this->files, $webDav->getUrl() . $folderName]);
+            $this->logger->debug("Upload package for $packageName transferred to GoodData");
+        } catch (ClientException $e) {
+            throw new UserException("Transfer package for $packageName has not been uploaded to '$uploadUrl'");
+        }
 
         try {
             $this->gdClient->getDatasets()->loadData($pid, $folderName);
