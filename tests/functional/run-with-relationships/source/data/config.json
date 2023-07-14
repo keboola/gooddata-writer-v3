@@ -1,0 +1,141 @@
+{
+  "image_parameters": {
+    "gooddata_url": "https://keboola-fork-bomb.on.gooddata.com"
+  },
+  "parameters": {
+    "project": {
+      "backendUrl": "https://keboola-fork-bomb.on.gooddata.com/"
+    },
+    "dimensions": {
+      "product date": {
+        "includeTime": true,
+        "template": "gooddata"
+      },
+      "test-date": {
+        "template": "GOODDATA"
+      }
+    },
+    "tables": {
+      "out.c-disabled.table": {
+        "title": "disabled-table",
+        "disabled": true,
+        "columns": {
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          }
+        }
+      },
+      "out.c-main.categories": {
+        "title": "categories",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          },
+          "order": {
+            "title": "order",
+            "type": "FACT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          }
+        }
+      },
+      "out.c-main.products": {
+        "title": "products",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "CONNECTION_POINT"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "price": {
+            "title": "price",
+            "type": "FACT",
+            "dataType": "DECIMAL",
+            "dataTypeSize": "12,2"
+          },
+          "productdate": {
+            "type": "DATE",
+            "dateDimension": "product date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "info": {
+            "identifier": "label.outcmainproducts.id.info",
+            "title": "info",
+            "type": "LABEL",
+            "reference": "id"
+          },
+          "categories": {
+            "type": "REFERENCE",
+            "schemaReference": "out.c-main.categories",
+            "multivalue": true
+          }
+        }
+      },
+      "out.c-main.products-grain": {
+        "title": "products-grain",
+        "columns": {
+          "id": {
+            "title": "id",
+            "type": "ATTRIBUTE"
+          },
+          "name": {
+            "title": "name",
+            "type": "ATTRIBUTE"
+          },
+          "price": {
+            "title": "price",
+            "type": "FACT",
+            "dataType": "DECIMAL",
+            "dataTypeSize": "12,2"
+          },
+          "productdate": {
+            "type": "DATE",
+            "dateDimension": "product date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "info": {
+            "title": "info",
+            "type": "LABEL",
+            "reference": "id"
+          },
+          "categories": {
+            "type": "REFERENCE",
+            "schemaReference": "out.c-main.categories"
+          }
+        },
+        "grain": ["id", "productdate", "categories"]
+      }
+    }
+  },
+  "storage": {
+    "input": {
+      "tables": [
+        {
+          "source": "out.c-disabled.table",
+          "columns": ["id", "name"]
+        },
+        {
+          "source": "out.c-main.categories",
+          "columns": ["id", "name", "order"]
+        },
+        {
+          "source": "out.c-main.products",
+          "destination": "out.c_main.products.csv",
+          "columns": ["id", "name", "price", "productdate", "info", "categories"]
+        }
+      ]
+    }
+  },
+  "action": "run"
+}
