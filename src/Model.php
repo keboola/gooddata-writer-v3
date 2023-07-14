@@ -29,6 +29,9 @@ class Model
                     }
                     if ($column['type'] === 'REFERENCE') {
                         $column = self::addReferenceDefinition($columnName, $column, $id, $def);
+                        if (isset($column['multivalue']) && $column['multivalue'] === true) {
+                            $result['multivalueAttributes'][] = $column['schemaReferenceConnection'];
+                        }
                     }
                     $columns[$columnName] = $column;
                 }
