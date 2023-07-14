@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4c8dd641f35e4ee66bbf36b8b14928c",
+    "content-hash": "e3d128cb5a1431f919bb7fc317657c3e",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -431,16 +431,16 @@
         },
         {
             "name": "keboola/gooddata-php-client",
-            "version": "3.0.4",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/gooddata-php-client.git",
-                "reference": "32756964e3452d891b9ae8d13b9ac49767c5be35"
+                "reference": "fd299c323fcce834d008f7b718df87ca42b680da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/32756964e3452d891b9ae8d13b9ac49767c5be35",
-                "reference": "32756964e3452d891b9ae8d13b9ac49767c5be35",
+                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/fd299c323fcce834d008f7b718df87ca42b680da",
+                "reference": "fd299c323fcce834d008f7b718df87ca42b680da",
                 "shasum": ""
             },
             "require": {
@@ -480,9 +480,9 @@
                 "gooddata"
             ],
             "support": {
-                "source": "https://github.com/keboola/gooddata-php-client/tree/3.0.4"
+                "source": "https://github.com/keboola/gooddata-php-client/tree/3.1.0"
             },
-            "time": "2023-04-13T08:21:59+00:00"
+            "time": "2023-07-14T12:46:39+00:00"
         },
         {
             "name": "keboola/php-component",
@@ -3737,5 +3737,5 @@
         "php": "^7.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
