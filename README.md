@@ -76,7 +76,7 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
 - **dimensions** contains list of configured date dimensions
     - dimension's name is in object's key
     - **title** - pretty name of the dimension in GoodData
-    - **idenitifer** (optional) - custom identifier of the dimension (default: `[date_dimension].dataset.dt`)
+    - **identifier** (optional) - custom identifier of the dimension (default: `[date_dimension].dataset.dt`)
     - **includeTime** - flag if the date contains also the time dimension (default: `false`)
     - **template** - name of date dimension template (default: `gooddata`)
 - **tables** contains list of configured tables to load
