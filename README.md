@@ -76,7 +76,7 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
 - **dimensions** contains list of configured date dimensions
     - dimension's name is in object's key
     - **title** - pretty name of the dimension in GoodData
-    - **idenitifer** (optional) - custom identifier of the dimension (default: `[date_dimension].dataset.dt`)
+    - **identifier** (optional) - custom identifier of the dimension (default: `[date_dimension].dataset.dt`)
     - **includeTime** - flag if the date contains also the time dimension (default: `false`)
     - **template** - name of date dimension template (default: `gooddata`)
 - **tables** contains list of configured tables to load
@@ -94,6 +94,7 @@ For data load of selected tables use flag `loadOnly` to prevent model update (wh
         - **dataTypeSize** - number of characters if `dataType` is `VARCHAR` (e.g. 255) or range if `dataType` is `DECIMAL` (e.g. 15,2)
         - **reference** - name of referenced column if `type` is `LABEL` or `HYPERLINK`
         - **schemaReference** - Storage API id of referenced table if `type` is `REFERENCE`
+        - **multivalue** - optional, bool - true if relationship should be m:n
         - **sortLabel** - name of label column used for sorting if `type` is `ATTRIBUTE`
         - **sortOrder** - order of sorting if `sortLabel` is used, one of: `ASC`, `DESC` (default: `ASC`)
         - **format** - format of the data in date dimension column if `type` is `DATE` (e.g. `yyyy-MM-dd`), supported formats are:

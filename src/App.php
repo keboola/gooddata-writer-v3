@@ -127,7 +127,7 @@ class App
             $upload = new Upload($this->gdClient, $this->logger, $tmpDir);
 
             $upload->createSingleLoadManifest($tableDef);
-            $fileName = $fileName = $this->getFilenameForTable($mapping);
+            $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
             $this->logger->info("Csv for table $tableId uploaded");
             $upload->upload($config->getProjectPid(), $tableId);
@@ -172,7 +172,7 @@ class App
         }
 
         // Add all tables including the disabled to the definition.
-        // Otherwise creating of data load manifest would not
+        // Otherwise, creating of data load manifest would not
         // work for datasets referencing disabled tables.
         $projectDefinition = [
             'dataSets' => $config->getTables(),

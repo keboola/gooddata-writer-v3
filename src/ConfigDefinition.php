@@ -51,6 +51,7 @@ class ConfigDefinition extends BaseConfigDefinition
                                     ->scalarNode('dateDimension')->end()
                                     ->scalarNode('reference')->end()
                                     ->scalarNode('schemaReference')->end()
+                                    ->scalarNode('multivalue')->end()
                                     ->scalarNode('format')->end()
                                     ->scalarNode('sortLabel')->end()
                                     ->scalarNode('sortOrder')->end()

@@ -9,7 +9,7 @@ RUN pecl install gnupg && docker-php-ext-enable gnupg
 WORKDIR /root
 
 ## install RapidSSL cert
-RUN curl https://www.websecurity.digicert.com/content/dam/websitesecurity/support/digicert/rapidssl/ica/RapidSSL_RSA_CA_2018.pem -o RapidSSL_RSA_CA_2018.pem
+RUN curl https://cacerts.digicert.com/RapidSSLRSACA2018.crt.pem -o RapidSSL_RSA_CA_2018.pem
 RUN openssl x509 -in RapidSSL_RSA_CA_2018.pem -inform PEM -out /usr/local/share/ca-certificates/RapidSSL_RSA_CA_2018.crt
 RUN rm RapidSSL_RSA_CA_2018.pem
 RUN update-ca-certificates
