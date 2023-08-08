@@ -174,7 +174,9 @@ table out.c-main.products data fully loaded to GoodData
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
             0,
-            'Csv for table out.c-main.products uploaded
+            'Csv for table out.c-main.products created
+Upload package manifest for table out.c-main.products transferred to GoodData
+table out.c-main.products data fully loaded to GoodData
 ',
             '',
             __DIR__ . '/run/expected/data/out'
