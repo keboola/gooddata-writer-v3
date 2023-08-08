@@ -93,7 +93,7 @@ class Upload
 
         try {
             $this->gdClient->getDatasets()->loadData($pid, $folderName);
-            $this->logger->info("Data fully loaded to $folderName at GoodData");
+            $this->logger->info("$packageName data fully loaded to GoodData");
         } catch (Exception $e) {
             $debugFile = "{$this->tmpDir}/etl.log";
             $logSaved = $webDav->saveLogs($folderName, $debugFile);
