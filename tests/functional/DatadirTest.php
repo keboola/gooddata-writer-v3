@@ -44,8 +44,12 @@ class DatadirTest extends AbstractDatadirTestCase
             'Created dimension product date
 Created dimension test-date
 Model updated
-Csv for table out.c-main.categories uploaded
-Csv for table out.c-main.products uploaded
+Csv for table out.c-main.categories created
+Upload package manifest for table out.c-main.categories transferred to GoodData
+table out.c-main.categories data fully loaded to GoodData
+Csv for table out.c-main.products created
+Upload package manifest for table out.c-main.products transferred to GoodData
+table out.c-main.products data fully loaded to GoodData
 ',
             '',
             __DIR__ . '/run/expected/data/out'
@@ -66,7 +70,9 @@ Csv for table out.c-main.products uploaded
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
             0,
-            'Csv for table out.c-main.products uploaded
+            'Csv for table out.c-main.products created
+Upload package manifest for table out.c-main.products transferred to GoodData
+table out.c-main.products data fully loaded to GoodData
 ',
             '',
             __DIR__ . '/run/expected/data/out'
@@ -142,8 +148,12 @@ Table in.c-gd-model.productsgrain created
             'Created dimension product date
 Created dimension test-date
 Model updated
-Csv for table out.c-main.categories uploaded
-Csv for table out.c-main.products uploaded
+Csv for table out.c-main.categories created
+Upload package manifest for table out.c-main.categories transferred to GoodData
+table out.c-main.categories data fully loaded to GoodData
+Csv for table out.c-main.products created
+Upload package manifest for table out.c-main.products transferred to GoodData
+table out.c-main.products data fully loaded to GoodData
 ',
             '',
             __DIR__ . '/run/expected/data/out'
@@ -164,7 +174,9 @@ Csv for table out.c-main.products uploaded
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
             0,
-            'Csv for table out.c-main.products uploaded
+            'Csv for table out.c-main.products created
+Upload package manifest for table out.c-main.products transferred to GoodData
+table out.c-main.products data fully loaded to GoodData
 ',
             '',
             __DIR__ . '/run/expected/data/out'

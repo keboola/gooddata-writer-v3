@@ -99,7 +99,7 @@ class App
             $definitions[] = $tableDef;
             $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
-            $this->logger->info("Csv for table $tableId uploaded");
+            $this->logger->info("Csv for table $tableId created");
         }
         $upload->createMultiLoadManifest($definitions);
         $upload->upload($config->getProjectPid());
@@ -129,7 +129,7 @@ class App
             $upload->createSingleLoadManifest($tableDef);
             $fileName = $this->getFilenameForTable($mapping);
             $upload->createCsv("$inputPath/{$fileName}", $tableDef);
-            $this->logger->info("Csv for table $tableId uploaded");
+            $this->logger->info("Csv for table $tableId created");
             $upload->upload($config->getProjectPid(), $tableId);
         }
     }

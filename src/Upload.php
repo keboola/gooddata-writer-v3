@@ -86,13 +86,14 @@ class Upload
 
         try {
             $retryProxy->call([$webDav, 'uploadZip'], [$this->files, $webDav->getUrl() . $folderName]);
-            $this->logger->debug("Upload package for $packageName transferred to GoodData");
+            $this->logger->info("Upload package manifest for $packageName transferred to GoodData");
         } catch (ClientException $e) {
             throw new UserException("Transfer package for $packageName has not been uploaded to '$uploadUrl'");
         }
 
         try {
             $this->gdClient->getDatasets()->loadData($pid, $folderName);
+            $this->logger->info("$packageName data fully loaded to GoodData");
         } catch (Exception $e) {
             $debugFile = "{$this->tmpDir}/etl.log";
             $logSaved = $webDav->saveLogs($folderName, $debugFile);
@@ -109,7 +110,6 @@ class Upload
                 );
                 $e = new Exception($data['error']['message'], $e->getCode(), $e);
             }
-
             throw $e;
         }
     }
