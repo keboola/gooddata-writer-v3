@@ -187,7 +187,8 @@ class ModelReader
                         $c['format'] = 'yyyy-MM-dd';
                         unset($c['schemaReference']);
                         $grainDictionary[$c['dateDimension']][$d['tableId']] = $c['name'];
-                    } elseif (in_array($c['schemaReference'], $dataSetsWithConnectionPoints)) {
+                    } elseif (in_array($c['schemaReference'], $dataSetsWithConnectionPoints)
+                        && array_key_exists($c['schemaReference'], $dataSetIdsDictionary)) {
                         $c['schemaReference'] = $dataSetIdsDictionary[$c['schemaReference']];
                     } elseif (substr($c['schemaReference'], 0, 13) === 'dataset.time.') {
                         unset($d['columns'][$i]);
