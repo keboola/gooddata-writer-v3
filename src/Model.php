@@ -30,7 +30,8 @@ class Model
                     if ($column['type'] === 'REFERENCE') {
                         $column = self::addReferenceDefinition($columnName, $column, $id, $def);
                         if (isset($column['multivalue']) && $column['multivalue'] === true) {
-                            $result['multivalueAttributes'][] = $column['schemaReferenceConnection'];
+                            $fkName = self::getFkName($id, $column['schemaReferenceConnection']);
+                            $result['multivalueAttributes'][$fkName] = $column['schemaReferenceConnection'];
                         }
                     }
                     $columns[$columnName] = $column;
@@ -439,5 +440,14 @@ class Model
             }
         }
         return $result;
+    }
+
+    protected static function getFkName(string $id, string $schemaReferenceConnection): string
+    {
+        return sprintf(
+            "f_%s.%s",
+            preg_replace("/[^A-Za-z0-9]/", '', $id),
+            str_replace(['attr.', '.'], ['', '_'], $schemaReferenceConnection)
+        );
     }
 }
