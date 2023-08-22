@@ -431,16 +431,16 @@
         },
         {
             "name": "keboola/gooddata-php-client",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/gooddata-php-client.git",
-                "reference": "fd299c323fcce834d008f7b718df87ca42b680da"
+                "reference": "644f3666a8242c4a810dcc7335c4d942e3e03826"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/fd299c323fcce834d008f7b718df87ca42b680da",
-                "reference": "fd299c323fcce834d008f7b718df87ca42b680da",
+                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/644f3666a8242c4a810dcc7335c4d942e3e03826",
+                "reference": "644f3666a8242c4a810dcc7335c4d942e3e03826",
                 "shasum": ""
             },
             "require": {
@@ -480,9 +480,9 @@
                 "gooddata"
             ],
             "support": {
-                "source": "https://github.com/keboola/gooddata-php-client/tree/3.1.0"
+                "source": "https://github.com/keboola/gooddata-php-client/tree/3.1.1"
             },
-            "time": "2023-07-14T12:46:39+00:00"
+            "time": "2023-08-22T07:57:27+00:00"
         },
         {
             "name": "keboola/php-component",
@@ -3737,5 +3737,5 @@
         "php": "^7.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
