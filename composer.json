@@ -13,7 +13,7 @@
   "require": {
     "php": "^7.1",
     "guzzlehttp/guzzle": "^6.5",
-    "keboola/gooddata-php-client": "dev-adamvyborny-CM-708-fix-issue-with-multiple-relations",
+    "keboola/gooddata-php-client": "^3.1",
     "keboola/php-component": "^7.0",
     "keboola/php-temp": "^1.0",
     "keboola/retry": "^0.5",
