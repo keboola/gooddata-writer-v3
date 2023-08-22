@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3d128cb5a1431f919bb7fc317657c3e",
+    "content-hash": "eacbe8799a7c06ae20e5c0c6cd7e871d",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -431,16 +431,16 @@
         },
         {
             "name": "keboola/gooddata-php-client",
-            "version": "3.1.0",
+            "version": "dev-adamvyborny-CM-708-fix-issue-with-multiple-relations",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/gooddata-php-client.git",
-                "reference": "fd299c323fcce834d008f7b718df87ca42b680da"
+                "reference": "579439d3704ab160a6c65fbdaedf2cb3071b3ecf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/fd299c323fcce834d008f7b718df87ca42b680da",
-                "reference": "fd299c323fcce834d008f7b718df87ca42b680da",
+                "url": "https://api.github.com/repos/keboola/gooddata-php-client/zipball/579439d3704ab160a6c65fbdaedf2cb3071b3ecf",
+                "reference": "579439d3704ab160a6c65fbdaedf2cb3071b3ecf",
                 "shasum": ""
             },
             "require": {
@@ -480,9 +480,9 @@
                 "gooddata"
             ],
             "support": {
-                "source": "https://github.com/keboola/gooddata-php-client/tree/3.1.0"
+                "source": "https://github.com/keboola/gooddata-php-client/tree/adamvyborny-CM-708-fix-issue-with-multiple-relations"
             },
-            "time": "2023-07-14T12:46:39+00:00"
+            "time": "2023-08-22T06:52:51+00:00"
         },
         {
             "name": "keboola/php-component",
@@ -3730,12 +3730,14 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "keboola/gooddata-php-client": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
