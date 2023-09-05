@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\GoodDataWriter\Test;
 
+use Generator;
 use Keboola\Component\UserException;
 use Keboola\GoodDataWriter\Model;
 use PHPUnit\Framework\TestCase;
@@ -286,5 +287,32 @@ class ModelTest extends TestCase
         $this->assertArrayHasKey('identifier', $model['columns']['date']);
         $this->assertArrayHasKey('ref', $model['columns']);
         $this->assertArrayHasKey('schemaReferenceConnectionLabel', $model['columns']['ref']);
+    }
+
+    /**
+     * @dataProvider foreignKeyNameDataProvider
+     */
+    public function testForeignKeyNameGeneration(
+        string $id,
+        string $schemaReferenceIdentifier,
+        string $expectedOutput
+    ): void {
+        $actualOutput = Model::getFkName($id, $schemaReferenceIdentifier);
+        $this->assertEquals($expectedOutput, $actualOutput);
+    }
+
+    public function foreignKeyNameDataProvider(): Generator
+    {
+        yield [
+            'out.c-rs-main.bridge_rus_administrator',
+            'dataset.outcrsmaindim_rus_administered',
+            'f_outcrsmainbridge_rus_administrator.outcrsmaindim_rus_administered_id',
+        ];
+
+        yield [
+            'out.c-main.products-grain',
+            'dataset.outcmaincategories',
+            'f_outcmainproductsgrain.outcmaincategories_id',
+        ];
     }
 }
