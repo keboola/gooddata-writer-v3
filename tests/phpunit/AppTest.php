@@ -6,6 +6,7 @@ namespace Keboola\GoodDataWriter\Test;
 
 use Keboola\Component\Config\BaseConfig;
 use Keboola\Component\Logger;
+use Keboola\Component\UserException;
 use Keboola\GoodData\Client;
 use Keboola\GoodDataWriter\App;
 use Keboola\GoodDataWriter\Config;
@@ -131,6 +132,20 @@ class AppTest extends TestCase
 
         // Run again with loadOnly
         $params['parameters']['loadOnly'] = true;
+        $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
+    }
+
+    public function testProjectNotFound(): void
+    {
+        ApiHelper::cleanUpProject($this->gdClient, (string) getenv('GD_PID'));
+        $app = $this->initApp();
+        $params = json_decode((string) file_get_contents(__DIR__ . '/../config.json'), true);
+        $params['parameters']['user']['login'] = getenv('GD_USERNAME');
+        $params['parameters']['user']['#password'] = getenv('GD_PASSWORD');
+        $params['parameters']['project']['pid'] = 'invalid-pid';
+
+        $this->expectExceptionMessage("GoodData user does not have access to resource '/gdc/projects/invalid-pid'. " .
+            'Invalid operation');
         $app->run(new Config($params, new ConfigDefinition()), __DIR__ . '/tables');
     }
 
